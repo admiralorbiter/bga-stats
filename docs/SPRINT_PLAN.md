@@ -30,25 +30,25 @@ This document breaks down the development work into small, manageable sprints. E
 
 ### Tasks
 
-- [ ] Create project directory structure
-  - [ ] `backend/` directory
-  - [ ] `frontend/templates/` directory
-  - [ ] `frontend/static/css/` directory
-  - [ ] `frontend/static/js/` directory
-- [ ] Set up Python virtual environment
-  - [ ] Create `venv/`
-  - [ ] Activate virtual environment
-- [ ] Create `requirements.txt` with dependencies
-  - [ ] Flask>=2.3.0
-  - [ ] SQLAlchemy>=2.0.0
-- [ ] Install Python dependencies
-- [ ] Initialize Tailwind CSS
-  - [ ] Create `package.json`
-  - [ ] Install Tailwind CSS CLI
-  - [ ] Create `tailwind.config.js`
-  - [ ] Create `frontend/static/css/input.css`
-- [ ] Create basic `.gitignore`
-- [ ] Update `README.md` with setup instructions
+- [x] Create project directory structure
+  - [x] `backend/` directory
+  - [x] `frontend/templates/` directory
+  - [x] `frontend/static/css/` directory
+  - [x] `frontend/static/js/` directory
+- [x] Set up Python virtual environment
+  - [x] Create `venv/`
+  - [x] Activate virtual environment
+- [x] Create `requirements.txt` with dependencies
+  - [x] Flask>=2.3.0
+  - [x] SQLAlchemy>=2.0.0
+- [x] Install Python dependencies
+- [x] Initialize Tailwind CSS
+  - [x] Create `package.json`
+  - [x] Install Tailwind CSS CLI
+  - [x] Create `tailwind.config.js`
+  - [x] Create `frontend/static/css/input.css`
+- [x] Create basic `.gitignore`
+- [x] Update `README.md` with setup instructions
 
 ### Deliverables
 
@@ -79,28 +79,28 @@ This document breaks down the development work into small, manageable sprints. E
 
 ### Tasks
 
-- [ ] Create `backend/models.py`
-  - [ ] Import SQLAlchemy components
-  - [ ] Set up `Base` declarative base
-  - [ ] Define `Game` model
-    - [ ] Fields: `id`, `bga_game_id` (unique), `name`, `display_name`, `status`, `premium`, `created_at`, `updated_at`
-  - [ ] Define `Player` model
-    - [ ] Fields: `id`, `bga_player_id` (unique), `name`, `xp`, `karma`, `matches_total`, `wins_total`, `abandoned`, `timeout`, `recent_matches`, `last_seen_days`, `created_at`, `updated_at`
-  - [ ] Define `PlayerGameStat` model
-    - [ ] Fields: `id`, `player_id` (FK), `game_id` (FK), `elo`, `rank`, `played`, `won`, `imported_at`, `created_at`, `updated_at`
-    - [ ] Unique constraint on `(player_id, game_id)`
-  - [ ] Define relationships (Player -> PlayerGameStat, Game -> PlayerGameStat)
-- [ ] Create `backend/db.py` (database initialization)
-  - [ ] Create database engine (SQLite)
-  - [ ] Create `init_db()` function to create tables
-  - [ ] Create `get_session()` function for database sessions
-- [ ] Create `backend/config.py` (configuration)
-  - [ ] Database path configuration
-  - [ ] Flask secret key generation/loading
-- [ ] Test database creation
-  - [ ] Run `init_db()` manually
-  - [ ] Verify `bga_stats.db` is created
-  - [ ] Verify tables exist using SQLite browser
+- [x] Create `backend/models.py`
+  - [x] Import SQLAlchemy components
+  - [x] Set up `Base` declarative base
+  - [x] Define `Game` model
+    - [x] Fields: `id`, `bga_game_id` (unique), `name`, `display_name`, `status`, `premium`, `created_at`, `updated_at`
+  - [x] Define `Player` model
+    - [x] Fields: `id`, `bga_player_id` (unique), `name`, `xp`, `karma`, `matches_total`, `wins_total`, `abandoned`, `timeout`, `recent_matches`, `last_seen_days`, `created_at`, `updated_at`
+  - [x] Define `PlayerGameStat` model
+    - [x] Fields: `id`, `player_id` (FK), `game_id` (FK), `elo`, `rank`, `played`, `won`, `imported_at`, `created_at`, `updated_at`
+    - [x] Unique constraint on `(player_id, game_id)`
+  - [x] Define relationships (Player -> PlayerGameStat, Game -> PlayerGameStat)
+- [x] Create `backend/db.py` (database initialization)
+  - [x] Create database engine (SQLite)
+  - [x] Create `init_db()` function to create tables
+  - [x] Create `get_session()` function for database sessions
+- [x] Create `backend/config.py` (configuration)
+  - [x] Database path configuration
+  - [x] Flask secret key generation/loading
+- [x] Test database creation
+  - [x] Run `init_db()` manually
+  - [x] Verify `bga_stats.db` is created
+  - [x] Verify tables exist using SQLite browser
 
 ### Deliverables
 
@@ -145,32 +145,32 @@ assert session.query(Player).count() == 1
 
 ### Tasks
 
-- [ ] Create `backend/app.py`
-  - [ ] Flask application factory pattern
-  - [ ] Load configuration from `config.py`
-  - [ ] Initialize database on app creation
-  - [ ] Register error handlers (404, 500)
-  - [ ] Create `create_app()` function
-- [ ] Create `backend/routes/__init__.py`
-- [ ] Create `backend/routes/main.py`
-  - [ ] `GET /` - Homepage route (redirects to import or players)
-  - [ ] Health check route `GET /health` (returns JSON status)
-- [ ] Create `backend/routes/api.py` (placeholder)
-  - [ ] Empty file, will be populated in later sprints
-- [ ] Update `backend/app.py` to register route blueprints
-- [ ] Create simple `frontend/templates/base.html`
-  - [ ] HTML5 structure
-  - [ ] Include Tailwind CSS (link to output.css)
-  - [ ] Include jQuery (CDN or local)
-  - [ ] Basic navigation placeholder
-  - [ ] Content block for child templates
-- [ ] Create `frontend/templates/home.html`
-  - [ ] Simple welcome page
-- [ ] Build initial Tailwind CSS (`npm run build-css`)
-- [ ] Test Flask app runs
-  - [ ] `flask run` starts successfully
-  - [ ] Can access homepage in browser
-  - [ ] Health check endpoint works
+- [x] Create `backend/app.py`
+  - [x] Flask application factory pattern
+  - [x] Load configuration from `config.py`
+  - [x] Initialize database on app creation
+  - [x] Register error handlers (404, 500)
+  - [x] Create `create_app()` function
+- [x] Create `backend/routes/__init__.py`
+- [x] Create `backend/routes/main.py`
+  - [x] `GET /` - Homepage route (redirects to import or players)
+  - [x] Health check route `GET /health` (returns JSON status)
+- [x] Create `backend/routes/api.py` (placeholder)
+  - [x] Empty file, will be populated in later sprints
+- [x] Update `backend/app.py` to register route blueprints
+- [x] Create simple `frontend/templates/base.html`
+  - [x] HTML5 structure
+  - [x] Include Tailwind CSS (link to output.css)
+  - [x] Include jQuery (CDN or local)
+  - [x] Basic navigation placeholder
+  - [x] Content block for child templates
+- [x] Create `frontend/templates/home.html`
+  - [x] Simple welcome page
+- [x] Build initial Tailwind CSS (`npm run build-css`)
+- [x] Test Flask app runs
+  - [x] `flask run` starts successfully
+  - [x] Can access homepage in browser
+  - [x] Health check endpoint works
 
 ### Deliverables
 
@@ -764,9 +764,10 @@ At end of Phase 1:
 ### Progress Tracking
 
 Update this document as sprints are completed:
-- [ ] Sprint 0: Project Setup - [Status]
-- [ ] Sprint 1: Database Foundation - [Status]
-- [ ] Sprint 2: Flask App Skeleton - [Status]
+- [x] Sprint 0: Project Setup - ✅ **Complete**
+- [x] Sprint 1: Database Foundation - ✅ **Complete**
+- [x] Sprint 2: Flask App Skeleton - ✅ **Complete**
+- [ ] Sprint 3: Player Stats Parser - [Status]
 - ... (continue for all sprints)
 
 ---

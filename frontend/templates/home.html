@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Home - BGA Stats{% endblock %}
+
+{% block content %}
+<div class="px-4 py-12 sm:px-6 lg:px-8">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+            Welcome to BGA Stats
+        </h1>
+        <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+            Local-first statistics tracker for BoardGameArena. Import, analyze, and manage your gaming data offline.
+        </p>
+        <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+            <div class="rounded-md shadow">
+                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Cards -->
+    <div class="mt-16">
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Feature 1 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Import Data</h3>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Use bookmarklets to export your BGA statistics and import them into the app.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Browse Stats</h3>
+                    <p class="mt-2 text-sm text-gray-500">
+                        View player statistics, game performance, and match history.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Local First</h3>
+                    <p class="mt-2 text-sm text-gray-500">
+                        All data stored locally on your machine. Full privacy and control.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
