@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Game Details - BGA Stats{% endblock %}
+
+{% block content %}
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-600">Loading game details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden">
+        <div class="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error loading game</h3>
+                    <p id="error-message" class="mt-2 text-sm text-red-700"></p>
+                </div>
+            </div>
+        </div>
+        <a href="/games" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            ← Back to Games
+        </a>
+    </div>
+
+    <!-- Game Details -->
+    <div id="game-content" class="hidden">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 id="game-display-name" class="text-3xl font-bold text-gray-900"></h1>
+                    <p id="game-name" class="mt-2 text-sm text-gray-600"></p>
+                </div>
+                <a href="/games" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    ← Back to Games
+                </a>
+            </div>
+        </div>
+
+        <!-- Game Info Cards -->
+        <div class="mb-8">
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-4">
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Status</dt>
+                        <dd id="game-status" class="mt-1"></dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Type</dt>
+                        <dd id="game-premium" class="mt-1"></dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">BGA Game ID</dt>
+                        <dd id="game-bga-id" class="mt-1 text-2xl font-semibold text-gray-900"></dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Players Tracked</dt>
+                        <dd id="player-count" class="mt-1 text-2xl font-semibold text-indigo-600"></dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Statistics Table -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Player Statistics</h2>
+            
+            <!-- Empty State for Player Stats -->
+            <div id="player-stats-empty" class="hidden text-center py-12 bg-white rounded-lg border border-gray-200">
+                <p class="text-gray-500">No player statistics available for this game yet.</p>
+            </div>
+
+            <!-- Player Stats Table -->
+            <div id="player-stats-table" class="hidden bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Player
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ELO
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Rank
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Played
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Won
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Win Rate
+                            </th>
+                            <th scope="col" class="relative px-6 py-3">
+                                <span class="sr-only">Actions</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="player-stats-tbody" class="bg-white divide-y divide-gray-200">
+                        <!-- Player stats will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass game ID from Flask to JavaScript
+    window.GAME_ID = {{ game_id }};
+</script>
+<script src="/static/js/game_detail.js"></script>
+{% endblock %}

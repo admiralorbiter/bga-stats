@@ -77,13 +77,19 @@ python app.py
 - `docs/AUTO_PULL_IMPLEMENTATION.md`
 - `IMPLEMENTATION_COMPLETE.md` (this file)
 
-### Modified Files (8)
+### New Files Added in Sprint 8 (4)
+- `frontend/templates/games.html`
+- `frontend/templates/game_detail.html`
+- `frontend/static/js/games.js`
+- `frontend/static/js/game_detail.js`
+
+### Modified Files (10)
 - `requirements.txt` - Added Playwright
 - `backend/models.py` - Added Match, Tournament models
 - `backend/services/import_service.py` - Added all importers
-- `backend/routes/main.py` - Added /sync route
-- `backend/routes/api.py` - Added sync endpoints
-- `frontend/templates/base.html` - Added Sync nav link
+- `backend/routes/main.py` - Added /sync route + /games routes
+- `backend/routes/api.py` - Added sync endpoints + games endpoints
+- `frontend/templates/base.html` - Added Sync nav link + Games nav link
 - `frontend/templates/import.html` - Added all import types
 - `README.md` - Updated with auto-pull instructions
 - `.gitignore` - Added .bga_session/
@@ -99,6 +105,7 @@ python app.py
 ✅ Rate limiting to protect BGA servers
 ✅ Session management (validate/logout)
 ✅ Players browsing (list + detail) for imported Player Stats
+✅ Games browsing (list + detail) for imported Game List
 
 ### What's Ready (Needs Pull Service)
 🟡 Game List auto-pull (parser & importer ready)
@@ -106,7 +113,7 @@ python app.py
 🟡 Tournament Stats auto-pull (parser & importer ready)
 
 ### What's Next (Browse UI)
-🟡 Games browsing (list/detail) for imported Game List
+✅ Games browsing (list/detail) for imported Game List - **COMPLETE**
 🟡 Tournaments browsing (list/detail) for imported Tournament Stats
 🟡 Matches browsing (list/detail) for imported Move Stats
 

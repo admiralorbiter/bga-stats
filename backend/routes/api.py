@@ -417,6 +417,132 @@ def get_player_detail(player_id):
         session.close()
 
 
+@api_bp.route('/games', methods=['GET'])
+def get_games():
+    """
+    Get all games with optional filtering.
+    
+    Query params:
+        status (str, optional): Filter by status (alpha, beta, published)
+        premium (str, optional): Filter by premium (0 or 1)
+        search (str, optional): Search by name or display_name
+    
+    Returns:
+        JSON array of games
+    """
+    try:
+        session = get_session()
+        query = session.query(Game)
+        
+        # Apply filters from query params
+        status = request.args.get('status')
+        if status:
+            query = query.filter(Game.status == status)
+        
+        premium = request.args.get('premium')
+        if premium is not None:
+            query = query.filter(Game.premium == (premium == '1'))
+        
+        search = request.args.get('search')
+        if search:
+            search_pattern = f'%{search}%'
+            query = query.filter(
+                (Game.name.like(search_pattern)) | 
+                (Game.display_name.like(search_pattern))
+            )
+        
+        # Order by display name
+        games = query.order_by(Game.display_name).all()
+        
+        games_data = []
+        for game in games:
+            games_data.append({
+                'id': game.id,
+                'bga_game_id': game.bga_game_id,
+                'name': game.name,
+                'display_name': game.display_name,
+                'status': game.status,
+                'premium': game.premium,
+                'url': f'/games/{game.id}'
+            })
+        
+        return jsonify({
+            'success': True,
+            'games': games_data,
+            'count': len(games_data)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        session.close()
+
+
+@api_bp.route('/games/<int:game_id>', methods=['GET'])
+def get_game_detail(game_id):
+    """
+    Get detailed information about a game including player stats.
+    
+    Returns:
+        JSON with game details and list of players who have played it
+    """
+    try:
+        session = get_session()
+        game = session.query(Game).filter(Game.id == game_id).first()
+        
+        if not game:
+            return jsonify({
+                'success': False,
+                'error': 'Game not found'
+            }), 404
+        
+        # Get all player stats for this game
+        player_stats = session.query(PlayerGameStat, Player)\
+            .join(Player, PlayerGameStat.player_id == Player.id)\
+            .filter(PlayerGameStat.game_id == game_id)\
+            .order_by(Player.name)\
+            .all()
+        
+        players_data = []
+        for stat, player in player_stats:
+            win_rate = (stat.won / stat.played * 100) if stat.played > 0 else 0
+            players_data.append({
+                'player_id': player.id,
+                'player_name': player.name,
+                'bga_player_id': player.bga_player_id,
+                'elo': stat.elo,
+                'rank': stat.rank,
+                'played': stat.played,
+                'won': stat.won,
+                'win_rate': round(win_rate, 1)
+            })
+        
+        game_data = {
+            'id': game.id,
+            'bga_game_id': game.bga_game_id,
+            'name': game.name,
+            'display_name': game.display_name,
+            'status': game.status,
+            'premium': game.premium,
+            'player_count': len(players_data),
+            'players': players_data
+        }
+        
+        return jsonify({
+            'success': True,
+            'game': game_data
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        session.close()
+
+
 @api_bp.route('/health', methods=['GET'])
 def api_health():
     """

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Games - BGA Stats{% endblock %}
+
+{% block content %}
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Games</h1>
+        <p class="mt-2 text-sm text-gray-600">
+            Browse the BoardGameArena game catalog
+        </p>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="mb-6 bg-white shadow-sm rounded-lg p-4 border border-gray-200">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <!-- Search -->
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
+                    Search
+                </label>
+                <input type="text" id="search-input" 
+                       class="w-full bg-white border-2 border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm px-3 py-2"
+                       placeholder="Search by name...">
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                </label>
+                <select id="status-filter" 
+                        class="w-full bg-white border-2 border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm px-3 py-2">
+                    <option value="">All Statuses</option>
+                    <option value="published">Published</option>
+                    <option value="beta">Beta</option>
+                    <option value="alpha">Alpha</option>
+                </select>
+            </div>
+            
+            <!-- Premium Filter -->
+            <div>
+                <label for="premium-filter" class="block text-sm font-medium text-gray-700 mb-1">
+                    Type
+                </label>
+                <select id="premium-filter" 
+                        class="w-full bg-white border-2 border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm px-3 py-2">
+                    <option value="">All Games</option>
+                    <option value="0">Free</option>
+                    <option value="1">Premium</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mt-3 flex items-center justify-between">
+            <p id="results-count" class="text-sm text-gray-600"></p>
+            <button id="clear-filters" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                Clear Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-600">Loading games...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden">
+        <div class="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error loading games</h3>
+                    <p id="error-message" class="mt-2 text-sm text-red-700"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No games found</h3>
+        <p class="mt-1 text-sm text-gray-500">Try importing the game list or adjusting your filters.</p>
+        <div class="mt-6">
+            <a href="/sync" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                Sync from BGA
+            </a>
+            <a href="/import" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Manual Import
+            </a>
+        </div>
+    </div>
+
+    <!-- Games Table -->
+    <div id="games-table" class="hidden">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Game Name
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Type
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            BGA ID
+                        </th>
+                        <th scope="col" class="relative px-6 py-3">
+                            <span class="sr-only">Actions</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="games-tbody" class="bg-white divide-y divide-gray-200">
+                    <!-- Games will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/games.js"></script>
+{% endblock %}

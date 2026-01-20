@@ -8,16 +8,20 @@ Implement a minimal working vertical slice that demonstrates the complete import
 
 **Rationale**: Player Stats provides the most immediate value to users (comprehensive player statistics) and has a well-defined, structured format that's easier to implement as a first pass.
 
+## Phase 1 Status: ✅ COMPLETE
+
+**Phase 1 delivered a full vertical slice** from import to browsing for Player Stats, with bonus Playwright auto-pull capability and parsers for all data types. Games browsing was also added as part of Phase 2 Sprint 8.
+
 ## Phase 1 Deliverables
 
 ### 1. Backend Foundation
 
 #### Database Models
-- [ ] `Player` model (from `backend/models.py`)
-- [ ] `Game` model (minimal, referenced by player stats)
-- [ ] `PlayerGameStat` model (player-game relationship with ELO, rank, etc.)
-- [ ] Database initialization script
-- [ ] SQLite database file creation on first run
+- [x] `Player` model (from `backend/models.py`)
+- [x] `Game` model (minimal, referenced by player stats)
+- [x] `PlayerGameStat` model (player-game relationship with ELO, rank, etc.)
+- [x] Database initialization script
+- [x] SQLite database file creation on first run
 
 #### Parser Implementation
 - [ ] `backend/parsers/player_stats_parser.py`

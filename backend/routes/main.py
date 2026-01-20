@@ -53,6 +53,18 @@ def player_detail(player_id):
     return render_template('player_detail.html', player_id=player_id)
 
 
+@main_bp.route('/games')
+def games():
+    """Games list page."""
+    return render_template('games.html')
+
+
+@main_bp.route('/games/<int:game_id>')
+def game_detail(game_id):
+    """Game detail page."""
+    return render_template('game_detail.html', game_id=game_id)
+
+
 @main_bp.route('/health')
 def health():
     """
