@@ -710,14 +710,122 @@ curl -X POST http://127.0.0.1:5000/api/import \
 
 ## Future Phase Sprints (Out of Scope for Phase 1)
 
-### Phase 2: Additional Import Types
+### Phase 2: Full Bookmarklet Coverage (Pull + Store + Browse)
 
-- **Sprint 10**: Game List Import
-- **Sprint 11**: Game List UI
-- **Sprint 12**: Move Stats Import
-- **Sprint 13**: Match Detail UI
-- **Sprint 14**: Tournament Stats Import
-- **Sprint 15**: Tournament Detail UI
+**Goal**: Support *all* bookmarklet data types end-to-end:
+- **Game List** (BGA catalog)
+- **Tournament Stats** (tournaments + matches + players)
+- **Move Stats** (match move timelines)
+
+**Principle**: Each data type should have:
+1) manual import (already supported for all 4),  
+2) auto-pull via Playwright (in progress), and  
+3) browse UI (in progress).
+
+#### Sprint 10: Games Browsing (UI + API)
+**Duration**: 3-5 hours  
+**Goal**: Browse the imported BGA game catalog (from Game List import)
+
+**Tasks**
+- [ ] Create `GET /api/games` endpoint
+  - [ ] Return: id, bga_game_id, name, display_name, status, premium
+  - [ ] Basic filters (optional): `status`, `premium`, search by name
+- [ ] Create `GET /games` route + `frontend/templates/games.html`
+  - [ ] Table/grid of games
+  - [ ] Empty state → link to Sync/Import
+- [ ] Add navigation link “Games”
+- [ ] Add a minimal “game detail” page (optional)
+
+**Acceptance Criteria**
+- [ ] User can view imported games at `/games`
+
+---
+
+#### Sprint 11: Auto-Pull Game List (Sync)
+**Duration**: 2-4 hours  
+**Goal**: Pull the complete BGA game list directly (no copy/paste)
+
+**Tasks**
+- [ ] Create `backend/services/bga_pull_game_list.py`
+  - [ ] Fetch `https://boardgamearena.com/gamelist?allGames=`
+  - [ ] Extract JSON like `bookmarklet-tool/GameList.js`
+  - [ ] Output TSV matching `docs/DATA_FORMATS.md` (Game List format)
+- [ ] Add `POST /api/sync/pull/game-list`
+- [ ] Add Sync UI button “Pull Game List”
+- [ ] Import via existing `import_service.import_data()`
+
+**Acceptance Criteria**
+- [ ] One click pulls and imports game list successfully
+
+---
+
+#### Sprint 12: Tournaments Browsing (UI + API)
+**Duration**: 4-6 hours  
+**Goal**: Browse imported tournaments and their match results
+
+**Tasks**
+- [ ] Create `GET /api/tournaments` and `GET /api/tournaments/<id>`
+  - [ ] Include tournament summary + matches + players
+- [ ] Create `/tournaments` + `/tournaments/<id>` pages
+  - [ ] Tournament list: name, game, dates, matches, timeouts, players
+  - [ ] Tournament detail: match list + per-player rows
+- [ ] Add navigation link “Tournaments”
+
+**Acceptance Criteria**
+- [ ] User can browse imported tournament data end-to-end
+
+---
+
+#### Sprint 13: Auto-Pull Tournament Stats (Sync)
+**Duration**: 4-8 hours  
+**Goal**: Pull tournament stats from BGA given tournament IDs
+
+**Tasks**
+- [ ] Create `backend/services/bga_pull_tournament_stats.py`
+  - [ ] Accept list of tournament IDs
+  - [ ] Use same data sources as `bookmarklet-tool/TournamentStats.js`
+  - [ ] Output TSV matching Tournament Stats format
+- [ ] Add `POST /api/sync/pull/tournament-stats`
+- [ ] Add Sync UI section for tournament IDs
+- [ ] Import via existing importer
+
+**Acceptance Criteria**
+- [ ] Tournament IDs can be pulled and show up in `/tournaments`
+
+---
+
+#### Sprint 14: Matches & Moves Browsing (UI + API)
+**Duration**: 4-7 hours  
+**Goal**: Browse imported matches (tables) and move timelines
+
+**Tasks**
+- [ ] Create `GET /api/matches` and `GET /api/matches/<table_id>`
+  - [ ] Include match header + ordered move timeline
+- [ ] Create `/matches` + `/matches/<table_id>` pages
+  - [ ] Match list: table id, game name, move count, imported_at
+  - [ ] Match detail: move table + basic stats (duration, turns per player)
+- [ ] Add navigation link “Matches”
+
+**Acceptance Criteria**
+- [ ] User can browse imported Move Stats end-to-end
+
+---
+
+#### Sprint 15: Auto-Pull Move Stats (Sync)
+**Duration**: 6-10 hours  
+**Goal**: Pull move timelines from BGA match reviews given table IDs
+
+**Tasks**
+- [ ] Create `backend/services/bga_pull_move_stats.py`
+  - [ ] Accept table IDs
+  - [ ] Navigate to `gamereview?table=<id>` and extract logs (like `MoveStats.js`)
+  - [ ] Output semicolon format matching Move Stats spec
+- [ ] Add `POST /api/sync/pull/move-stats`
+- [ ] Add Sync UI section for table IDs (multi-line input)
+- [ ] Import via existing importer
+
+**Acceptance Criteria**
+- [ ] Table IDs can be pulled and show up in `/matches`
 
 ### Phase 3: Quality & Usability
 
@@ -781,7 +889,8 @@ Update this document as sprints are completed:
 - [x] Sprint 3: Player Stats Parser - ✅ **Complete**
 - [x] Sprint 4: Import Service & API - ✅ **Complete**
 - [x] Sprint 5: Base Frontend & Import UI - ✅ **Complete**
-- [ ] Sprint 6: Players List API & UI - [Status]
+- [x] Sprint 6: Players List API & UI - ✅ **Complete**
+- [x] Sprint 7: Player Detail API & UI - ✅ **Complete**
 - ... (continue for all sprints)
 
 ---

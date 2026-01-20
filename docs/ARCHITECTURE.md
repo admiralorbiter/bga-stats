@@ -13,10 +13,11 @@ The BGA Stats App is a local-first Flask web application that enables users to i
 - Works completely offline after initial data import
 
 ### 2. Browser-Assisted Data Acquisition
-- **No backend credential management**: The application never handles BGA login credentials
-- Users must be logged into BGA in their browser to run bookmarklets
-- Data is exported from bookmarklets and then imported into the app
-- This design ensures users maintain control over their BGA authentication
+- **No password handling**: The application never asks for or stores a BGA username/password.
+- **Two supported acquisition modes**:
+  1) **Manual (Bookmarklet) Mode**: Users run bookmarklets in their browser and paste/export into the app.
+  2) **Auto-Pull (Playwright) Mode**: Users perform a one-time interactive login in a Playwright browser window; the app then reuses the saved browser session to fetch data without copy/paste.
+- **Security note**: Auto-pull stores session cookies locally in `.bga_session/` (git-ignored). Treat it as sensitive.
 
 ### 3. Import-Based Workflow
 - Data flows from BGA → Browser (via bookmarklets) → Flask App (via import)
@@ -64,6 +65,30 @@ The BGA Stats App is a local-first Flask web application that enables users to i
 └─────────────────────────┘
 ```
 
+### Auto-Pull Data Flow (Optional)
+
+```
+User initiates login (one-time)
+    ↓
+Playwright opens a browser window
+    ↓
+User logs into BGA normally
+    ↓
+Session state saved locally (.bga_session/)
+    ↓
+User clicks “Pull …” in /sync
+    ↓
+Playwright uses saved session (headless)
+    ↓
+Fetch pages / call BGA endpoints
+    ↓
+Format output to the same TSV/CSV formats
+    ↓
+Reuse existing parsers + import pipeline
+    ↓
+SQLite database
+```
+
 ## Module Structure
 
 ### Backend (`backend/`)
@@ -91,10 +116,11 @@ The BGA Stats App is a local-first Flask web application that enables users to i
 #### `routes/`
 - API routes (`/api/*`)
   - `POST /api/import` - Import data endpoint
-  - `GET /api/games`, `/api/games/<id>` - Game data
+  - `GET /api/games`, `/api/games/<id>` - Game data (planned UI)
   - `GET /api/players`, `/api/players/<id>` - Player data
-  - `GET /api/matches`, `/api/matches/<table_id>` - Match data
-  - `GET /api/tournaments`, `/api/tournaments/<id>` - Tournament data
+  - `GET /api/matches`, `/api/matches/<table_id>` - Match data (planned UI)
+  - `GET /api/tournaments`, `/api/tournaments/<id>` - Tournament data (planned UI)
+  - `POST /api/sync/*` - Auto-pull endpoints (Playwright)
 - HTML page routes
   - Serve templates for browsing/searching
 
@@ -215,10 +241,10 @@ The BGA Stats App is a local-first Flask web application that enables users to i
 
 ### Security Constraints
 
-1. **No Credential Storage**: The app never stores or handles BGA login credentials
-2. **Local-Only**: Data stays on the user's machine unless explicitly exported
-3. **No External Network Calls**: Backend doesn't make HTTP requests to BGA
-4. **Input Validation**: All imported data is validated and sanitized
+1. **No Password Storage**: The app never stores or handles BGA passwords.
+2. **Local-Only**: Data stays on the user's machine unless explicitly exported.
+3. **Auto-Pull is Optional**: When enabled, the backend will make network calls to BGA using Playwright with a locally saved session state.
+4. **Input Validation**: All imported data is validated and sanitized (including auto-pull output before DB upserts).
 
 ### Technical Constraints
 
@@ -298,8 +324,8 @@ The BGA Stats App is a local-first Flask web application that enables users to i
 
 ## Non-Goals
 
-- Backend-based web scraping of BGA
+- “Password-based scraping” of BGA (asking users for credentials) — not supported
+- Cloud deployment or multi-user auth
 - Multi-user account management
-- Cloud deployment or remote databases
 - Real-time data synchronization with BGA
 - Authentication/authorization system (single-user app)

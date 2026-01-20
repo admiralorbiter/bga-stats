@@ -143,6 +143,7 @@ Database (SQLite)
 - ✅ Rate limiting
 - ✅ Error handling and display
 - ✅ All 4 import types supported (manual import)
+- ✅ Players browsing (list + detail) for Player Stats
 
 ### Partially Implemented
 - 🟡 Game List, Move Stats, Tournament Stats auto-pull
@@ -150,11 +151,12 @@ Database (SQLite)
   - Parsers: ✅ Created
   - Importers: ✅ Created
   - Pull services: ❌ Not yet implemented
-  - UI: 🟡 Placeholder in sync.html
+  - Browse UI: ❌ Not yet implemented (planned Phase 2)
+  - Sync UI: 🟡 Placeholder in sync.html
 
 ## Next Steps (Not Yet Implemented)
 
-To complete full auto-pull for all data types:
+To complete full auto-pull + browse coverage for all bookmarklet data types:
 
 ### 1. Game List Pull Service
 Create `backend/services/bga_pull_game_list.py`:
@@ -162,6 +164,9 @@ Create `backend/services/bga_pull_game_list.py`:
 - Extract JSON from page source (similar to GameList.js)
 - Format as TSV
 - Add API endpoint and UI button
+
+Add browse UI:
+- `/games` list page + `/api/games`
 
 ### 2. Move Stats Pull Service
 Create `backend/services/bga_pull_move_stats.py`:
@@ -172,6 +177,9 @@ Create `backend/services/bga_pull_move_stats.py`:
 - Format as semicolon-delimited
 - Add API endpoint and UI
 
+Add browse UI:
+- `/matches` list + `/matches/<table_id>` detail
+
 ### 3. Tournament Stats Pull Service
 Create `backend/services/bga_pull_tournament_stats.py`:
 - Accept tournament ID input
@@ -180,6 +188,9 @@ Create `backend/services/bga_pull_tournament_stats.py`:
 - Parse tournament structure
 - Format as TSV
 - Add API endpoint and UI
+
+Add browse UI:
+- `/tournaments` list + `/tournaments/<id>` detail
 
 ### 4. Background Tasks (Optional Enhancement)
 - Use Celery or similar for async processing

@@ -204,6 +204,32 @@ Implement a minimal working vertical slice that demonstrates the complete import
 3. Expand to Phase 2 (other import types)
 4. Add Phase 3 features (search, edit, export, audit)
 
+---
+
+## Status Update (January 2026)
+
+**Phase 1 is now ✅ COMPLETE**, plus a few “beyond Phase 1” improvements were added:
+
+- ✅ Players list and player detail browsing are implemented
+- ✅ Manual import supports **all bookmarklet types** (Player Stats, Game List, Move Stats, Tournament Stats)
+- ✅ Auto-pull (Playwright) is implemented for **Player Stats**
+
+### Phase 2 Scope (Full Bookmarklet Coverage)
+
+**Goal**: Pull + store + browse **the remaining bookmarklet datasets**:
+
+1. **Game List**
+   - Browse `/games` (catalog)
+   - Auto-pull “Game List” via `/sync`
+2. **Tournament Stats**
+   - Browse `/tournaments` and tournament detail pages
+   - Auto-pull tournament stats given tournament IDs
+3. **Move Stats**
+   - Browse `/matches` and match timeline pages
+   - Auto-pull move stats given table IDs
+
+This Phase 2 work is broken down into small sprints in `docs/SPRINT_PLAN.md`.
+
 ## Dependencies
 
 Phase 1 depends on:
