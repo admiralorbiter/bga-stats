@@ -201,41 +201,41 @@ assert session.query(Player).count() == 1
 
 ### Tasks
 
-- [ ] Create `backend/parsers/__init__.py`
-- [ ] Create `backend/parsers/player_stats_parser.py`
-  - [ ] Define `parse_player_stats(raw_text)` function
-  - [ ] Split input into lines
-  - [ ] Skip empty lines
-  - [ ] Detect row types:
-    - [ ] XP row (second column is "XP")
-    - [ ] Recent games row (second column is "Recent games")
-    - [ ] Per-game row (6 columns, second column is game name)
-  - [ ] Parse XP row:
-    - [ ] Extract: player_name, xp_value, karma, total_matches, total_wins
-    - [ ] Validate numeric fields
-  - [ ] Parse Recent games row:
-    - [ ] Extract: player_name, abandoned, timeout, recent_matches, last_seen_days
-    - [ ] Validate numeric fields
-  - [ ] Parse per-game rows:
-    - [ ] Extract: player_name, game_name, elo, rank, played, won
-    - [ ] Handle empty rank and non-numeric ELO ("N/A")
-    - [ ] Validate numeric fields where applicable
-  - [ ] Group rows by player
-  - [ ] Return structured data (list of dicts)
-  - [ ] Error handling:
-    - [ ] Invalid row format exceptions
-    - [ ] Missing required fields
-    - [ ] Type conversion errors
-- [ ] Create `backend/parsers/exceptions.py`
-  - [ ] `ParserError` base exception
-  - [ ] `ValidationError` for invalid input
-  - [ ] `ParseError` for parsing failures
-- [ ] Write unit tests (optional, recommended)
-  - [ ] Test with sample Player Stats export
-  - [ ] Test XP row parsing
-  - [ ] Test Recent games row parsing
-  - [ ] Test per-game row parsing
-  - [ ] Test error cases
+- [x] Create `backend/parsers/__init__.py`
+- [x] Create `backend/parsers/player_stats_parser.py`
+  - [x] Define `parse_player_stats(raw_text)` function
+  - [x] Split input into lines
+  - [x] Skip empty lines
+  - [x] Detect row types:
+    - [x] XP row (second column is "XP")
+    - [x] Recent games row (second column is "Recent games")
+    - [x] Per-game row (6 columns, second column is game name)
+  - [x] Parse XP row:
+    - [x] Extract: player_name, xp_value, karma, total_matches, total_wins
+    - [x] Validate numeric fields
+  - [x] Parse Recent games row:
+    - [x] Extract: player_name, abandoned, timeout, recent_matches, last_seen_days
+    - [x] Validate numeric fields
+  - [x] Parse per-game rows:
+    - [x] Extract: player_name, game_name, elo, rank, played, won
+    - [x] Handle empty rank and non-numeric ELO ("N/A")
+    - [x] Validate numeric fields where applicable
+  - [x] Group rows by player
+  - [x] Return structured data (list of dicts)
+  - [x] Error handling:
+    - [x] Invalid row format exceptions
+    - [x] Missing required fields
+    - [x] Type conversion errors
+- [x] Create `backend/parsers/exceptions.py`
+  - [x] `ParserError` base exception
+  - [x] `ValidationError` for invalid input
+  - [x] `ParseError` for parsing failures
+- [x] Write unit tests (optional, recommended)
+  - [x] Test with sample Player Stats export
+  - [x] Test XP row parsing
+  - [x] Test Recent games row parsing
+  - [x] Test per-game row parsing
+  - [x] Test error cases
 
 ### Deliverables
 
@@ -278,36 +278,36 @@ assert len(result[0]['game_stats']) == 2
 
 ### Tasks
 
-- [ ] Create `backend/services/__init__.py`
-- [ ] Create `backend/services/import_service.py`
-  - [ ] `detect_import_type(raw_text)` function
-    - [ ] Analyze input format (tab vs semicolon delimiter)
-    - [ ] Check for Player Stats signatures (XP row, Recent games row)
-    - [ ] Return import type string
-  - [ ] `import_player_stats(session, parsed_data)` function
-    - [ ] For each player in parsed data:
-      - [ ] Upsert Player (find by `bga_player_id`, update or create)
-      - [ ] Update overall stats (XP, karma, totals, recent)
-      - [ ] For each game stat:
-        - [ ] Upsert Game (find by name, create if new)
-        - [ ] Upsert PlayerGameStat (find by player_id + game_id, update or create)
-    - [ ] Return import results:
-      - [ ] Players created/updated count
-      - [ ] Games created/updated count
-      - [ ] Game stats created/updated count
-  - [ ] `import_data(import_type, raw_text)` main function
-    - [ ] Get database session
-    - [ ] Route to appropriate parser
-    - [ ] Parse data
-    - [ ] Call appropriate import function
-    - [ ] Commit transaction
-    - [ ] Return results dict
-- [ ] Create `backend/routes/api.py`
-  - [ ] `POST /api/import` endpoint
-    - [ ] Accept JSON: `{"type": "player_stats", "data": "..."}` or `{"data": "..."}` (auto-detect)
-    - [ ] Accept file upload (optional for Phase 1)
-    - [ ] Call import service
-    - [ ] Return JSON response:
+- [x] Create `backend/services/__init__.py`
+- [x] Create `backend/services/import_service.py`
+  - [x] `detect_import_type(raw_text)` function
+    - [x] Analyze input format (tab vs semicolon delimiter)
+    - [x] Check for Player Stats signatures (XP row, Recent games row)
+    - [x] Return import type string
+  - [x] `import_player_stats(session, parsed_data)` function
+    - [x] For each player in parsed data:
+      - [x] Upsert Player (find by `bga_player_id`, update or create)
+      - [x] Update overall stats (XP, karma, totals, recent)
+      - [x] For each game stat:
+        - [x] Upsert Game (find by name, create if new)
+        - [x] Upsert PlayerGameStat (find by player_id + game_id, update or create)
+    - [x] Return import results:
+      - [x] Players created/updated count
+      - [x] Games created/updated count
+      - [x] Game stats created/updated count
+  - [x] `import_data(import_type, raw_text)` main function
+    - [x] Get database session
+    - [x] Route to appropriate parser
+    - [x] Parse data
+    - [x] Call appropriate import function
+    - [x] Commit transaction
+    - [x] Return results dict
+- [x] Create `backend/routes/api.py`
+  - [x] `POST /api/import` endpoint
+    - [x] Accept JSON: `{"type": "player_stats", "data": "..."}` or `{"data": "..."}` (auto-detect)
+    - [x] Accept file upload (optional for Phase 1)
+    - [x] Call import service
+    - [x] Return JSON response:
       ```json
       {
         "success": true,
@@ -321,12 +321,12 @@ assert len(result[0]['game_stats']) == 2
         "errors": []
       }
       ```
-    - [ ] Handle errors gracefully (return error response)
-- [ ] Test import endpoint
-  - [ ] Use sample Player Stats export
-  - [ ] POST to `/api/import`
-  - [ ] Verify data is stored in database
-  - [ ] Verify response contains correct counts
+    - [x] Handle errors gracefully (return error response)
+- [x] Test import endpoint
+  - [x] Use sample Player Stats export
+  - [x] POST to `/api/import`
+  - [x] Verify data is stored in database
+  - [x] Verify response contains correct counts
 
 ### Deliverables
 
@@ -767,7 +767,9 @@ Update this document as sprints are completed:
 - [x] Sprint 0: Project Setup - ✅ **Complete**
 - [x] Sprint 1: Database Foundation - ✅ **Complete**
 - [x] Sprint 2: Flask App Skeleton - ✅ **Complete**
-- [ ] Sprint 3: Player Stats Parser - [Status]
+- [x] Sprint 3: Player Stats Parser - ✅ **Complete**
+- [x] Sprint 4: Import Service & API - ✅ **Complete**
+- [ ] Sprint 5: Base Frontend & Import UI - [Status]
 - ... (continue for all sprints)
 
 ---

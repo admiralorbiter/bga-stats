@@ -1,6 +1,6 @@
 javascript:{
 /* generates CSV from user data */
-function parsePlayerStats(player_page) {
+function parsePlayerStats(player_page, player_id) {
     var output = "";
     var player = player_page.querySelector("#player_name").innerText.trim();
     /* overall stats */
@@ -48,11 +48,11 @@ function parsePlayerStats(player_page) {
         var rank = "";
         var rankStr = gameDivs[i].getElementsByClassName("gamerank_no")[0];
         if (rankStr) rank = rankStr.innerText.match(/(\d+)?/)[0];
-        output += player + "\t" + game + "\t" + elo + "\t" + rank + "\t" + played + "\t" + won + "\n";
+        output += player + "\t" + player_id + "\t" + game + "\t" + elo + "\t" + rank + "\t" + played + "\t" + won + "\n";
     }
     /* prepend overall player stats */
-    output = player + "\tXP\t" + exp + "\t" + karma + "\t" + matches + "\t" + wins + "\n" + 
-                player + "\tRecent games\t" + abandoned + "\t" + timeout + "\t" + recent + "\t" + lastSeenDays + "\n" + output;
+    output = player + "\t" + player_id + "\tXP\t" + exp + "\t" + karma + "\t" + matches + "\t" + wins + "\n" + 
+                player + "\t" + player_id + "\tRecent games\t" + abandoned + "\t" + timeout + "\t" + recent + "\t" + lastSeenDays + "\n" + output;
     return output;
 }
 /* fetches and prints group members' stats */
@@ -70,7 +70,7 @@ function exportPlayerStats() {
             const html_str = await response.text();
             const doc = parser.parseFromString(html_str, "text/html");
             try {
-                exported_str = exported_str + parsePlayerStats(doc);
+                exported_str = exported_str + parsePlayerStats(doc, player_id);
             } catch (err) {
                 console.log(members[i] + "\n" + err);
                 console.log(doc);
@@ -188,7 +188,7 @@ function displayExportSection() {
     membersdiv.appendChild(groupFilterBtn);
 
     var exportheader = document.createElement("h3");
-    exportheader.innerText = "Player Name\tGame Name\tELO\tRank\tMatches\tWins";
+    exportheader.innerText = "Player Name\tPlayer ID\tGame Name\tELO\tRank\tMatches\tWins";
     exportheader.setAttribute("style", "text-transform: none;");
 
     var output = document.createElement("textarea");

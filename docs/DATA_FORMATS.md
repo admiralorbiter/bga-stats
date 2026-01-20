@@ -114,12 +114,13 @@ Remaining rows are per-game statistics.
 #### Row Type 1: XP (Overall Stats)
 
 ```
-PLAYER_NAME\tXP\tXP_VALUE\tKARMA_PERCENT\tTOTAL_MATCHES\tTOTAL_WINS
+PLAYER_NAME\tPLAYER_ID\tXP\tXP_VALUE\tKARMA_PERCENT\tTOTAL_MATCHES\tTOTAL_WINS
 ```
 
 | Column | Type | Description | Example |
 |--------|------|-------------|---------|
 | PLAYER_NAME | String | Player's display name | `JohnDoe` |
+| PLAYER_ID | Integer | BGA player ID (unique identifier) | `12345` |
 | Fixed | String | Always `"XP"` | `XP` |
 | XP_VALUE | Integer | Experience points | `45000` |
 | KARMA_PERCENT | Integer | Reputation percentage (0-100) | `95` |
@@ -129,12 +130,13 @@ PLAYER_NAME\tXP\tXP_VALUE\tKARMA_PERCENT\tTOTAL_MATCHES\tTOTAL_WINS
 #### Row Type 2: Recent Games
 
 ```
-PLAYER_NAME\tRecent games\tABANDONED\tTIMEOUT\tRECENT_MATCHES\tLAST_SEEN_DAYS
+PLAYER_NAME\tPLAYER_ID\tRecent games\tABANDONED\tTIMEOUT\tRECENT_MATCHES\tLAST_SEEN_DAYS
 ```
 
 | Column | Type | Description | Example |
 |--------|------|-------------|---------|
 | PLAYER_NAME | String | Player's display name | `JohnDoe` |
+| PLAYER_ID | Integer | BGA player ID (unique identifier) | `12345` |
 | Fixed | String | Always `"Recent games"` | `Recent games` |
 | ABANDONED | Integer | Abandoned matches (last 60 days) | `2` |
 | TIMEOUT | Integer | Timeout count (last 60 days) | `1` |
@@ -144,12 +146,13 @@ PLAYER_NAME\tRecent games\tABANDONED\tTIMEOUT\tRECENT_MATCHES\tLAST_SEEN_DAYS
 #### Row Type 3: Per-Game Stats
 
 ```
-PLAYER_NAME\tGAME_NAME\tELO\tRANK\tMATCHES_PLAYED\tWINS
+PLAYER_NAME\tPLAYER_ID\tGAME_NAME\tELO\tRANK\tMATCHES_PLAYED\tWINS
 ```
 
 | Column | Type | Description | Example |
 |--------|------|-------------|---------|
 | PLAYER_NAME | String | Player's display name | `JohnDoe` |
+| PLAYER_ID | Integer | BGA player ID (unique identifier) | `12345` |
 | GAME_NAME | String | Game name | `Ticket to Ride` |
 | ELO | String | ELO rating (may include text) | `1500` or `"N/A"` |
 | RANK | String | Rank number (empty if unranked) | `42` or `""` |
@@ -159,24 +162,26 @@ PLAYER_NAME\tGAME_NAME\tELO\tRANK\tMATCHES_PLAYED\tWINS
 #### Complete Example
 
 ```
-JohnDoe	XP	45000	95	1250	650
-JohnDoe	Recent games	2	1	45	3
-JohnDoe	Ticket to Ride	1500	42	150	75
-JohnDoe	Carcassonne	1650	25	200	110
-JohnDoe	Chess	1800	10	300	180
+JohnDoe	12345	XP	45000	95	1250	650
+JohnDoe	12345	Recent games	2	1	45	3
+JohnDoe	12345	Ticket to Ride	1500	42	150	75
+JohnDoe	12345	Carcassonne	1650	25	200	110
+JohnDoe	12345	Chess	1800	10	300	180
 ```
 
 #### Notes
 
 - Multiple players can be in the same export (each player has XP row, Recent games row, then N game rows)
-- XP and Recent games rows use fixed second column values (`"XP"` and `"Recent games"`) to identify them
+- `PLAYER_ID` is the BGA player ID and is used as the unique identifier for players
+- XP and Recent games rows use fixed third column values (`"XP"` and `"Recent games"`) to identify them
 - `RANK` may be empty string if player is unranked
 - `ELO` may contain non-numeric text (e.g., "N/A")
 - `LAST_SEEN_DAYS` is calculated and may be 0 if seen today
+- **Breaking change**: Format updated from 6 columns to 7 columns (added PLAYER_ID as column 2)
 
 #### Header Row
 
-The bookmarklet UI shows `Player Name\tGame Name\tELO\tRank\tMatches\tWins` but this is **not included in the export**. The parser must detect the row types by content.
+The bookmarklet UI shows `Player Name\tPlayer ID\tGame Name\tELO\tRank\tMatches\tWins` but this is **not included in the export**. The parser must detect the row types by content.
 
 ### 4. Tournament Stats Import
 
