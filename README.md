@@ -87,7 +87,7 @@ npm run watch-css
 
 ```bash
 # Make sure virtual environment is activated
-flask --app backend.app run
+python app.py
 ```
 
 The application will be available at: `http://127.0.0.1:5000`
@@ -111,14 +111,11 @@ source venv/bin/activate
 ### Running Development Server
 
 ```bash
-# Set Flask to development mode (optional)
-# Windows PowerShell:
-$env:FLASK_ENV="development"
-# Linux/Mac:
-export FLASK_ENV=development
+# Run the application
+python app.py
 
-# Run Flask
-flask --app backend.app run
+# The app runs in development mode by default
+# Access at http://127.0.0.1:5000
 ```
 
 ### Watching CSS Changes
@@ -160,10 +157,26 @@ bga-stats/
 
 ### Importing Data
 
-1. **Export from BGA**: Run the appropriate bookmarklet on BoardGameArena while logged in
-2. **Copy Data**: Copy the exported text from the bookmarklet output
-3. **Import**: Navigate to the import page in the app and paste the data
-4. **Browse**: View your imported statistics in the app
+1. **Install Bookmarklets**: 
+   - Visit the Tools page at `http://127.0.0.1:5000/tools`
+   - Drag the "📊 BGA Player Stats" button to your bookmarks bar
+   - Or click "Copy Code" for mobile installation
+
+2. **Export from BGA**: 
+   - Visit any player profile or group page on BoardGameArena
+   - Click the bookmarklet from your bookmarks
+   - Wait for the data to be collected and displayed
+
+3. **Copy Data**: 
+   - Select all text in the bookmarklet's output box (Ctrl+A / Cmd+A)
+   - Copy the text (Ctrl+C / Cmd+C)
+
+4. **Import**: 
+   - Navigate to `http://127.0.0.1:5000/import`
+   - Paste the data into the textarea
+   - Click "Import Data"
+
+5. **Browse**: View your imported statistics in the app
 
 See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for detailed import workflow.
 
@@ -194,12 +207,14 @@ See [docs/SPRINT_PLAN.md](docs/SPRINT_PLAN.md) for detailed sprint breakdown.
 
 Test the import workflow:
 ```bash
-# 1. Start the Flask app
-flask --app backend.app run
+# 1. Start the app
+python app.py
 
-# 2. Navigate to http://127.0.0.1:5000/import
-# 3. Paste sample export data
-# 4. Verify data appears in browse pages
+# 2. Navigate to http://127.0.0.1:5000/tools
+# 3. Install the bookmarklet
+# 4. Visit a BGA player page and run the bookmarklet
+# 5. Copy the output and import at http://127.0.0.1:5000/import
+# 6. Verify data appears in the database
 ```
 
 ### Verification Commands

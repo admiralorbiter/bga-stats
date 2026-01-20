@@ -140,21 +140,29 @@ bga-stats/
 # Windows: .\venv\Scripts\Activate.ps1
 # Linux/Mac: source venv/bin/activate
 
-# Set Flask environment variables (optional, for development)
-# Windows PowerShell:
-$env:FLASK_APP="backend/app.py"
-$env:FLASK_ENV="development"
-# Linux/Mac:
-export FLASK_APP=backend/app.py
-export FLASK_ENV=development
+# Run the application
+python app.py
 
-# Run Flask development server
-flask run
-# Or: python -m flask run
-# Or: python backend/app.py (if __main__ block configured)
+# The app runs automatically in development mode
 ```
 
 The application will be available at `http://127.0.0.1:5000`
+
+**Note**: The app is configured with `app.py` in the root directory for simple execution. No Flask environment variables needed.
+
+### Available Pages (Phase 1)
+
+Once running, you can access:
+
+- **Home**: `http://127.0.0.1:5000/` - Landing page with overview
+- **Tools**: `http://127.0.0.1:5000/tools` - Install bookmarklets for data collection
+- **Import**: `http://127.0.0.1:5000/import` - Import TSV data from bookmarklets
+- **Health Check**: `http://127.0.0.1:5000/health` - API health endpoint
+
+**Coming in Sprint 6+**:
+- **Players**: `/players` - Browse imported players
+- **Player Detail**: `/player/<id>` - Individual player statistics
+- **Games**: `/games` - Browse game statistics
 
 ### Production Mode
 
@@ -208,55 +216,101 @@ flask db upgrade
 
 ## Import Workflow
 
+### Step 0: Install Bookmarklets (One-Time Setup)
+
+1. **Start the BGA Stats app**:
+   ```bash
+   python app.py
+   ```
+
+2. **Navigate to the Tools page**: `http://127.0.0.1:5000/tools`
+
+3. **Install the bookmarklet**:
+   - **Desktop**: Drag the "📊 BGA Player Stats" button to your bookmarks bar
+   - **Mobile**: Click "Copy Code" button, then create a new bookmark and paste the code as the URL
+
+4. **Verify installation**: The bookmarklet should appear in your bookmarks with the name "BGA Player Stats"
+
 ### Step 1: Run Bookmarklet on BGA
 
 1. **Log into BoardGameArena** in your browser
-2. Navigate to the appropriate page:
-   - **Game List**: `https://boardgamearena.com/gamelist`
-   - **Player Stats**: `https://boardgamearena.com/player?id=12345` or group page
-   - **Move Stats**: `https://boardgamearena.com/gamereview?table=12345678`
-   - **Tournament Stats**: `https://boardgamearena.com/tournament?id=12345`
-3. **Run the corresponding bookmarklet**:
-   - Click the bookmarklet in your browser's bookmarks bar
-   - Or copy/paste the bookmarklet code into browser console
-4. **Wait for export to complete**:
-   - Bookmarklet will populate a textarea with the export data
-   - Some bookmarklets (PlayerStats, TournamentStats) show "Loading..." progress
+
+2. **Navigate to the appropriate page**:
+   - **Player Stats** (Phase 1): `https://boardgamearena.com/player?id=12345` or any group page
+   - **Game List** (Phase 2): `https://boardgamearena.com/gamelist`
+   - **Move Stats** (Phase 2): `https://boardgamearena.com/gamereview?table=12345678`
+   - **Tournament Stats** (Phase 2): `https://boardgamearena.com/tournament?id=12345`
+
+3. **Run the bookmarklet**:
+   - Click the "BGA Player Stats" bookmarklet from your bookmarks bar
+   - The bookmarklet will inject UI elements at the top of the page
+
+4. **Click "Start" button** in the bookmarklet UI
+
+5. **Wait for export to complete**:
+   - The bookmarklet will populate a textarea with the export data
+   - Progress indicator shows "Loading... X/Y" for multiple players
+   - When complete, the textarea will contain tab-separated data
 
 ### Step 2: Copy Export Data
 
-1. **Select all text** in the export textarea (Ctrl+A / Cmd+A)
-2. **Copy** the text (Ctrl+C / Cmd+C)
-3. Or use the "Select All" functionality if the bookmarklet provides it
+1. **Locate the export textarea**:
+   - Look for the large textarea labeled "Player Name Player ID Game Name ELO Rank Matches Wins"
+   - This textarea contains all the exported data in TSV format
 
-### Step 3: Import into Flask App
+2. **Select all text**:
+   - Click inside the textarea
+   - Press Ctrl+A (Windows/Linux) or Cmd+A (Mac) to select all
+
+3. **Copy the text**:
+   - Press Ctrl+C (Windows/Linux) or Cmd+C (Mac)
+   - The data is now in your clipboard
+
+### Step 3: Import into BGA Stats App
 
 1. **Navigate to import page**: `http://127.0.0.1:5000/import`
-2. **Choose import method**:
-   - **Option A**: Paste into text area
-     - Click in the textarea
-     - Paste (Ctrl+V / Cmd+V)
-   - **Option B**: Upload file
-     - Click "Choose File" or drag-and-drop
-     - Select a `.txt`, `.tsv`, or `.csv` file containing the export
-3. **Select import type** (if auto-detection is ambiguous):
-   - Game List
-   - Move Stats
-   - Player Stats
-   - Tournament Stats
-4. **Click "Import"** button
+   - You can also click "Import" in the navigation bar
+   - Or click "Import collected data →" link from the Tools page
+
+2. **Paste the data**:
+   - Click in the large textarea on the import page
+   - Press Ctrl+V (Windows/Linux) or Cmd+V (Mac) to paste
+   - The textarea should now contain lines like:
+     ```
+     PlayerName	12345	XP	92000	100	7493	3290
+     PlayerName	12345	Recent games	0	2	322	0
+     PlayerName	12345	Yahtzee	101	1251	585
+     ...
+     ```
+
+3. **Select import type** (optional):
+   - The default "Auto-detect" works for most cases
+   - Or manually select "Player Stats" from the dropdown
+
+4. **Click "Import Data"** button:
+   - The button will show "Importing..." with a spinner
+   - Processing typically takes 1-2 seconds
+
 5. **Review import results**:
-   - Success message with record counts
-   - Error summary if validation fails
-   - Preview of imported data (optional)
+   - **Success**: Green banner showing:
+     - "Created X new player(s)"
+     - "Added X new game(s)"
+     - "Created X new game stat(s)"
+     - "Updated X game stat(s)" (if re-importing)
+   - **Error**: Red banner with error details (e.g., validation issues, malformed data)
 
-### Step 4: Browse Imported Data
+6. **The textarea clears automatically** on success, ready for the next import
 
-After successful import:
-- Navigate to **Games** page to see imported games
-- Navigate to **Players** page to see imported players
-- Navigate to **Matches** page to see imported matches
-- Navigate to **Tournaments** page to see imported tournaments
+### Step 4: Browse Imported Data (Coming in Sprint 6)
+
+After successful import, you can verify the data was saved:
+
+```bash
+# Using Python shell
+python -c "from backend.db import get_session; from backend.models import Player; s = get_session(); print(f'Players: {s.query(Player).count()}'); s.close()"
+```
+
+**Future (Sprint 6+)**: Navigate to Players/Games pages to browse imported data in the UI.
 
 ## Development Workflow
 
