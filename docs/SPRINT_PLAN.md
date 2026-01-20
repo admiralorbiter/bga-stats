@@ -6,20 +6,27 @@ This document breaks down the development work into small, manageable sprints. E
 
 ### Phase 1 Sprints (Player Stats - Vertical Slice)
 
-| Sprint | Name | Duration | Focus |
-|--------|------|----------|-------|
-| Sprint 0 | Project Setup | 1-2 hours | Environment & dependencies |
-| Sprint 1 | Database Foundation | 4-6 hours | Models & initialization |
-| Sprint 2 | Flask App Skeleton | 3-4 hours | Basic app structure |
-| Sprint 3 | Player Stats Parser | 4-6 hours | Import parsing logic |
-| Sprint 4 | Import Service & API | 4-6 hours | Backend import pipeline |
-| Sprint 5 | Base Frontend & Import UI | 4-6 hours | Import page |
-| Sprint 6 | Players List API & UI | 3-4 hours | List players |
-| Sprint 7 | Player Detail API & UI | 4-5 hours | Individual player view |
-| Sprint 8 | Integration & Testing | 4-6 hours | End-to-end testing |
-| Sprint 9 | Polish & Refinement | 3-4 hours | UX improvements |
+| Sprint | Name | Duration | Status | Focus |
+|--------|------|----------|--------|-------|
+| Sprint 0 | Project Setup | 1-2 hours | ✅ Complete | Environment & dependencies |
+| Sprint 1 | Database Foundation | 4-6 hours | ✅ Complete | Models & initialization |
+| Sprint 2 | Flask App Skeleton | 3-4 hours | ✅ Complete | Basic app structure |
+| Sprint 3 | Player Stats Parser | 4-6 hours | ✅ Complete | Import parsing logic |
+| Sprint 4 | Import Service & API | 4-6 hours | ✅ Complete | Backend import pipeline |
+| Sprint 5 | Base Frontend & Import UI | 4-6 hours | ✅ Complete | Import page |
+| Sprint 6 | Players List API & UI | 3-4 hours | ✅ Complete | List players |
+| Sprint 7 | Player Detail API & UI | 4-5 hours | ✅ Complete | Individual player view |
+| Sprint 8 | Integration & Testing | 4-6 hours | 🔄 In Progress | End-to-end testing |
+| Sprint 9 | Polish & Refinement | 3-4 hours | Pending | UX improvements |
 
-**Total Phase 1**: ~35-50 hours (approximately 5-7 working days)
+**Phase 1 Progress**: Sprints 0-7 complete! Core functionality operational.
+
+**Bonus Features Added:**
+- ✅ Auto-Pull with Playwright (no copy/paste required!)
+- ✅ Session management for BGA login
+- ✅ Automatic player ID detection and display
+- ✅ Win rate analytics with color-coded badges
+- ✅ All Phase 2 parsers (Game List, Move Stats, Tournaments)
 
 ---
 
@@ -426,14 +433,15 @@ curl -X POST http://127.0.0.1:5000/api/import \
 
 ## Sprint 6: Players List API & UI
 
+**Status**: ✅ COMPLETE  
 **Duration**: 3-4 hours  
 **Goal**: Display list of imported players
 
 ### Tasks
 
-- [ ] Create `GET /api/players` endpoint in `backend/routes/api.py`
-  - [ ] Query all players from database
-  - [ ] Return JSON array:
+- [x] Create `GET /api/players` endpoint in `backend/routes/api.py`
+  - [x] Query all players from database
+  - [x] Return JSON array:
     ```json
     [
       {
@@ -449,31 +457,32 @@ curl -X POST http://127.0.0.1:5000/api/import \
       ...
     ]
     ```
-  - [ ] Optionally support pagination (Phase 1: return all)
-- [ ] Create `frontend/templates/players.html`
-  - [ ] Extends base template
-  - [ ] Page title "Players"
-  - [ ] Players table:
-    - [ ] Columns: Name, XP, Karma, Matches, Wins, Actions
-    - [ ] Links to player detail pages
-  - [ ] Empty state message (if no players)
-  - [ ] "Import Data" link
-- [ ] Create `frontend/static/js/players.js`
-  - [ ] Fetch players on page load (AJAX GET `/api/players`)
-  - [ ] Render players table dynamically
-  - [ ] Handle empty state
-  - [ ] Add click handlers for player links
-- [ ] Add `GET /players` route in `backend/routes/main.py`
-  - [ ] Render `players.html` template
-- [ ] Style with Tailwind CSS
-  - [ ] Table styling (striped rows, hover effects)
-  - [ ] Responsive table (scrollable on mobile)
-  - [ ] Link styling
-- [ ] Test players list
-  - [ ] Import some player data
-  - [ ] Navigate to `/players`
-  - [ ] Verify players are displayed
-  - [ ] Verify links work
+  - [x] Optionally support pagination (Phase 1: return all)
+- [x] Create `frontend/templates/players.html`
+  - [x] Extends base template
+  - [x] Page title "Players"
+  - [x] Players table:
+    - [x] Columns: Name, XP, Karma, Matches, Wins, Win Rate, Actions
+    - [x] Links to player detail pages
+  - [x] Empty state message (if no players)
+  - [x] "Import Data" link
+- [x] Create `frontend/static/js/players.js`
+  - [x] Fetch players on page load (AJAX GET `/api/players`)
+  - [x] Render players table dynamically
+  - [x] Handle empty state
+  - [x] Add click handlers for player links
+  - [x] Color-coded win rate badges
+- [x] Add `GET /players` route in `backend/routes/main.py`
+  - [x] Render `players.html` template
+- [x] Style with Tailwind CSS
+  - [x] Table styling (striped rows, hover effects)
+  - [x] Responsive table (scrollable on mobile)
+  - [x] Link styling
+- [x] Test players list
+  - [x] Import some player data
+  - [x] Navigate to `/players`
+  - [x] Verify players are displayed
+  - [x] Verify links work
 
 ### Deliverables
 
@@ -500,15 +509,16 @@ curl -X POST http://127.0.0.1:5000/api/import \
 
 ## Sprint 7: Player Detail API & UI
 
+**Status**: ✅ COMPLETE  
 **Duration**: 4-5 hours  
 **Goal**: Display individual player statistics
 
 ### Tasks
 
-- [ ] Create `GET /api/players/<id>` endpoint in `backend/routes/api.py`
-  - [ ] Query player by ID
-  - [ ] Include related game stats (join PlayerGameStat and Game)
-  - [ ] Return JSON:
+- [x] Create `GET /api/players/<id>` endpoint in `backend/routes/api.py`
+  - [x] Query player by ID
+  - [x] Include related game stats (join PlayerGameStat and Game)
+  - [x] Return JSON:
     ```json
     {
       "id": 1,
@@ -534,36 +544,37 @@ curl -X POST http://127.0.0.1:5000/api/import \
       ]
     }
     ```
-  - [ ] Handle 404 if player not found
-- [ ] Create `frontend/templates/player_detail.html`
-  - [ ] Extends base template
-  - [ ] Player name as page title
-  - [ ] Overall stats section:
-    - [ ] XP, Karma, Total Matches, Total Wins
-    - [ ] Display as cards or grid
-  - [ ] Recent games section:
-    - [ ] Abandoned, Timeout, Recent Matches, Last Seen
-  - [ ] Per-game statistics table:
-    - [ ] Columns: Game Name, ELO, Rank, Played, Won
-    - [ ] Sortable (optional, Phase 1: basic table)
-  - [ ] Back to Players link
-- [ ] Create `frontend/static/js/player_detail.js`
-  - [ ] Extract player ID from URL
-  - [ ] Fetch player data (AJAX GET `/api/players/<id>`)
-  - [ ] Render overall stats
-  - [ ] Render recent games stats
-  - [ ] Render game stats table
-  - [ ] Handle 404 error (player not found)
-- [ ] Add `GET /players/<id>` route in `backend/routes/main.py`
-  - [ ] Render `player_detail.html` template
-- [ ] Style with Tailwind CSS
-  - [ ] Stats cards (grid layout, colored backgrounds)
-  - [ ] Table styling (consistent with players list)
-  - [ ] Responsive layout
-- [ ] Test player detail page
-  - [ ] Navigate to player detail from players list
-  - [ ] Verify all stats are displayed correctly
-  - [ ] Verify game stats table has data
+  - [x] Handle 404 if player not found
+- [x] Create `frontend/templates/player_detail.html`
+  - [x] Extends base template
+  - [x] Player name as page title
+  - [x] Overall stats section:
+    - [x] XP, Karma, Total Matches, Total Wins
+    - [x] Display as cards with color-coded stats
+  - [x] Recent games section:
+    - [x] Abandoned, Timeout, Recent Matches, Last Seen
+  - [x] Per-game statistics table:
+    - [x] Columns: Game Name, ELO, Rank, Played, Won, Win Rate
+    - [x] Sorted by most-played games
+    - [x] Color-coded win rate badges
+  - [x] Back to Players link
+- [x] Create `frontend/static/js/player_detail.js`
+  - [x] Extract player ID from Flask template
+  - [x] Fetch player data (AJAX GET `/api/players/<id>`)
+  - [x] Render overall stats
+  - [x] Render recent games stats
+  - [x] Render game stats table
+  - [x] Handle 404 error (player not found)
+- [x] Add `GET /players/<id>` route in `backend/routes/main.py`
+  - [x] Render `player_detail.html` template
+- [x] Style with Tailwind CSS
+  - [x] Stats cards (grid layout, colored backgrounds)
+  - [x] Table styling (consistent with players list)
+  - [x] Responsive layout
+- [x] Test player detail page
+  - [x] Navigate to player detail from players list
+  - [x] Verify all stats are displayed correctly
+  - [x] Verify game stats table has data
 
 ### Deliverables
 

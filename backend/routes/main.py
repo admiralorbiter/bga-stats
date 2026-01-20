@@ -33,6 +33,26 @@ def tools_page():
     return render_template('tools.html')
 
 
+@main_bp.route('/sync')
+def sync_page():
+    """
+    Sync page - allows users to pull data directly from BGA using Playwright.
+    """
+    return render_template('sync.html')
+
+
+@main_bp.route('/players')
+def players():
+    """Players list page."""
+    return render_template('players.html')
+
+
+@main_bp.route('/players/<int:player_id>')
+def player_detail(player_id):
+    """Player detail page."""
+    return render_template('player_detail.html', player_id=player_id)
+
+
 @main_bp.route('/health')
 def health():
     """

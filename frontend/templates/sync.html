@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Sync Data - BGA Stats{% endblock %}
+
+{% block content %}
+<div class="px-4 py-8 sm:px-6 lg:px-8 bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Sync Data from BGA</h1>
+        <p class="mt-2 text-sm text-gray-600">
+            Automatically pull your statistics directly from BoardGameArena without manual copy/paste.
+        </p>
+    </div>
+
+    <!-- Session Status Card -->
+    <div class="bg-gray-50 shadow-md rounded-lg p-6 mb-6 border-2 border-gray-300">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Session Status</h2>
+        
+        <div id="session-status" class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div id="status-indicator" class="h-3 w-3 rounded-full bg-gray-400"></div>
+                    </div>
+                    <div class="ml-3">
+                        <p id="status-text" class="text-sm text-gray-600">Checking session...</p>
+                    </div>
+                </div>
+                <div id="player-id-display" class="hidden">
+                    <span class="text-xs text-gray-500">Your Player ID: </span>
+                    <span id="player-id-value" class="text-sm font-mono font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-200"></span>
+                    <button type="button" id="copy-player-id-btn" class="ml-2 text-xs text-blue-600 hover:text-blue-800 font-medium">
+                        📋 Copy
+                    </button>
+                </div>
+            </div>
+            
+            <div id="session-actions" class="flex flex-wrap gap-2">
+                <button type="button" id="login-btn"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span id="login-btn-text">Login to BGA</span>
+                    <svg id="login-spinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+                
+                <button type="button" id="validate-btn"
+                        class="hidden inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Validate Session
+                </button>
+                
+                <button type="button" id="logout-btn"
+                        class="hidden inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Clear Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pull Data Section -->
+    <div id="pull-section" class="hidden bg-gray-50 shadow-md rounded-lg p-6 mb-6 border-2 border-gray-300">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Pull Data</h2>
+        
+        <div class="space-y-6">
+            <!-- Player Stats -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-md font-medium text-gray-900 mb-3">Player Statistics</h3>
+                <p class="text-sm text-gray-600 mb-4">Pull stats for specific players or group members.</p>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label for="player-ids" class="block text-sm font-medium text-gray-700 mb-1">
+                            Player IDs or Group ID
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="player-ids" 
+                                   class="flex-1 bg-white border-2 border-gray-400 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm px-4 py-3"
+                                   placeholder="Enter player IDs (comma-separated) or group ID">
+                            <button type="button" id="use-my-id-btn" class="hidden px-4 py-2 bg-blue-100 border-2 border-blue-400 text-blue-700 text-sm font-medium rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+                                Use My ID
+                            </button>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Example: 12345,67890 or group:123
+                        </p>
+                    </div>
+                    
+                    <button type="button" id="pull-player-stats-btn"
+                            class="inline-flex items-center px-6 py-3 border-2 border-green-700 text-base font-medium rounded-md shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mt-3">
+                        <span id="pull-player-text">🚀 Pull Player Stats</span>
+                        <svg id="pull-player-spinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Progress Bar -->
+                    <div id="progress-section" class="hidden mt-4 bg-blue-50 border-2 border-blue-300 rounded-md p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span id="progress-text" class="text-sm font-medium text-blue-900">
+                                Pulling player data...
+                            </span>
+                            <span id="progress-percent" class="text-sm font-bold text-blue-700">
+                                0%
+                            </span>
+                        </div>
+                        <div class="w-full bg-blue-200 rounded-full h-3 border border-blue-300">
+                            <div id="progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                        </div>
+                        <p id="progress-detail" class="mt-2 text-xs text-blue-700"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coming Soon sections -->
+            <div class="opacity-50">
+                <h3 class="text-md font-medium text-gray-900 mb-3">Game List (Coming Soon)</h3>
+                <p class="text-sm text-gray-600 mb-4">Pull the complete list of games available on BGA.</p>
+                <button type="button" disabled
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+                    Pull Game List
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Area -->
+    <div id="results-area" class="hidden">
+        <!-- Success message -->
+        <div id="success-message" class="hidden rounded-md bg-green-100 border-2 border-green-400 p-4 mb-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Success!</h3>
+                    <div class="mt-2 text-sm text-green-700">
+                        <p id="success-details"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error message -->
+        <div id="error-message" class="hidden rounded-md bg-red-100 border-2 border-red-400 p-4 mb-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p id="error-details"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">How to use Sync</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li>Click "Login to BGA" to open a browser window</li>
+                        <li>Log in to your BoardGameArena account in the browser</li>
+                        <li>Wait for the session to be saved (window will close automatically)</li>
+                        <li>Use the pull options above to fetch data automatically</li>
+                        <li>Data will be imported directly into the app - no copy/paste needed!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/sync.js') }}"></script>
+{% endblock %}

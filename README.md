@@ -13,9 +13,12 @@ BGA Stats App allows you to:
 ## Features
 
 - **Local-First**: All data stored on your machine, no cloud dependencies
-- **Privacy-Focused**: No BGA credentials stored, uses browser-based data export
+- **Auto-Pull Data**: Automatically fetch statistics from BGA using Playwright (no copy/paste!)
+- **Manual Import**: Alternative browser bookmarklet method for data export
+- **Browse & View**: Interactive players list and detailed per-player game statistics
 - **Comprehensive Stats**: Import player stats, game lists, match details, and tournament data
 - **Modern UI**: Built with Tailwind CSS for a clean, responsive interface
+- **Session Management**: Login once, pull data anytime
 
 ## Prerequisites
 
@@ -83,7 +86,15 @@ For development with auto-rebuild on changes:
 npm run watch-css
 ```
 
-### 6. Run the Application
+### 6. Install Playwright Browsers (for auto-pull feature)
+
+```bash
+playwright install chromium
+```
+
+This is required only if you want to use the auto-pull feature. Skip if you only plan to use manual bookmarklet imports.
+
+### 7. Run the Application
 
 ```bash
 # Make sure virtual environment is activated
@@ -155,41 +166,68 @@ bga-stats/
 
 ## Usage
 
-### Importing Data
+### Method 1: Auto-Pull (Recommended)
+
+**No copy/paste required!**
+
+1. **Navigate to Sync page**: `http://127.0.0.1:5000/sync`
+
+2. **Login once**: 
+   - Click "Login to BGA"
+   - A browser window opens - log in as normal
+   - Window closes automatically, session saved
+
+3. **Pull data**:
+   - Your player ID is automatically displayed after login
+   - Click "Use My ID" to auto-fill your ID, or enter other player IDs
+   - Enter player IDs (e.g., `12345,67890`) or group ID (e.g., `group:123`)
+   - Click "Pull Player Stats"
+   - Data is automatically imported!
+
+4. **View your stats**:
+   - Navigate to "Players" in the top menu
+   - See all imported players with win rates, matches, and XP
+   - Click "View Details" to see per-game statistics
+
+See [docs/PLAYWRIGHT_SETUP.md](docs/PLAYWRIGHT_SETUP.md) for detailed auto-pull guide.
+
+### Method 2: Manual Import (Bookmarklet)
+
+**Traditional copy/paste method:**
 
 1. **Install Bookmarklets**: 
    - Visit the Tools page at `http://127.0.0.1:5000/tools`
    - Drag the "📊 BGA Player Stats" button to your bookmarks bar
-   - Or click "Copy Code" for mobile installation
 
 2. **Export from BGA**: 
    - Visit any player profile or group page on BoardGameArena
    - Click the bookmarklet from your bookmarks
    - Wait for the data to be collected and displayed
 
-3. **Copy Data**: 
-   - Select all text in the bookmarklet's output box (Ctrl+A / Cmd+A)
-   - Copy the text (Ctrl+C / Cmd+C)
-
-4. **Import**: 
+3. **Copy & Import**: 
+   - Copy all text from the bookmarklet output
    - Navigate to `http://127.0.0.1:5000/import`
-   - Paste the data into the textarea
-   - Click "Import Data"
+   - Paste and click "Import Data"
 
-5. **Browse**: View your imported statistics in the app
-
-See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for detailed import workflow.
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for detailed manual workflow.
 
 ## Development Phases
 
 The project is being developed in phases:
 
-- **Phase 1** (Current): Player Stats - Complete vertical slice
-  - Player statistics import and browsing
-  - Database foundation
-  - Basic UI components
-- **Phase 2**: Additional import types (Game List, Move Stats, Tournaments)
-- **Phase 3**: Advanced features (search, filtering, export, CRUD operations)
+- **Phase 1** (✅ Complete): Player Stats - Complete vertical slice
+  - ✅ Player statistics import (auto-pull and manual)
+  - ✅ Database foundation with SQLAlchemy models
+  - ✅ Players list and detail views
+  - ✅ Session management with Playwright
+  - ✅ Modern UI with Tailwind CSS
+- **Phase 2** (In Progress): Additional import types
+  - Game List, Move Stats, Tournaments parsers (✅ Complete)
+  - Auto-pull for other data types (Planned)
+- **Phase 3** (Planned): Advanced features
+  - Search, filtering, sorting
+  - Data export and analytics
+  - CRUD operations for manual data management
 
 See [docs/SPRINT_PLAN.md](docs/SPRINT_PLAN.md) for detailed sprint breakdown.
 
@@ -261,11 +299,18 @@ This is currently a personal project. For questions or suggestions, please open 
 
 [Your chosen license]
 
-## Next Steps
+## Current Status
 
-After setup, proceed with:
-1. Sprint 1: Database models and initialization
-2. Sprint 2: Flask application skeleton
-3. Sprint 3: Player stats parser
+**Completed Features:**
+- ✅ Sprints 0-7: Full player stats workflow (auto-pull, import, view)
+- ✅ Database models for all data types (players, games, stats, matches, tournaments)
+- ✅ Parsers for all bookmarklet formats
+- ✅ Players list and detail pages with win rate analytics
+- ✅ Session management with automatic player ID detection
+
+**Next Up:**
+- Sprint 8+: Auto-pull for Game List, Move Stats, Tournaments
+- Advanced filtering and search
+- Data analytics and visualizations
 
 See [docs/SPRINT_PLAN.md](docs/SPRINT_PLAN.md) for the complete roadmap.

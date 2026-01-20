@@ -13,6 +13,9 @@ instance/
 *.db
 *.sqlite3
 
+# Playwright session storage (contains sensitive auth data)
+.bga_session/
+
 # Node.js
 node_modules/
 package-lock.json
