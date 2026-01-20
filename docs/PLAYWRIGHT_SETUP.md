@@ -76,6 +76,12 @@ The app will:
 3. Automatically import the data into the database
 4. Show results (players created/updated, games added, etc.)
 
+#### Viewing Imported Data
+
+After pulling/importing, you can browse:
+- `/players` to see all imported players
+- `/players/<id>` to see a single player's per-game stats
+
 ### Session Management
 
 **Validate Session**: Check if your saved session is still active
@@ -117,12 +123,15 @@ The system handles common errors:
   - Overall stats (XP, karma, matches, wins)
   - Per-game statistics (ELO, rank, played, won)
   - Recent game history
+  - Player ID is detected and displayed in the Sync UI (copy + “Use My ID”)
 
 ### Coming Soon
 
 - 🚧 **Game List**: Pull complete list of BGA games
 - 🚧 **Move Stats**: Extract move-by-move game data
 - 🚧 **Tournament Stats**: Pull tournament match data
+
+See `docs/SPRINT_PLAN.md` Phase 2 for the planned browse + auto-pull rollout.
 
 ## Architecture
 

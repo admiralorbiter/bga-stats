@@ -600,132 +600,260 @@ curl -X POST http://127.0.0.1:5000/api/import \
 
 ---
 
-## Sprint 8: Integration & Testing
+## Phase 2: Full Bookmarklet Coverage (Pull + Store + Browse)
 
+**Goal**: Support *all* bookmarklet data types end-to-end:
+- **Game List** (BGA catalog)
+- **Tournament Stats** (tournaments + matches + players)
+- **Move Stats** (match move timelines)
+
+**Principle**: Each data type should have:
+1) manual import (already supported for all 4),  
+2) auto-pull via Playwright (in progress), and  
+3) browse UI (in progress).
+
+**Note**: Integration testing and polish are deferred to Sprints 14-15 (after Phase 2 complete) to avoid double-polishing and to test all data types together.
+
+---
+
+## Sprint 8: Games Browsing (UI + API)
+**Duration**: 3-5 hours  
+**Goal**: Browse the imported BGA game catalog (from Game List import)
+
+**Tasks**
+- [ ] Create `GET /api/games` endpoint
+  - [ ] Return: id, bga_game_id, name, display_name, status, premium
+  - [ ] Basic filters (optional): `status`, `premium`, search by name
+- [ ] Create `GET /games` route + `frontend/templates/games.html`
+  - [ ] Table/grid of games
+  - [ ] Empty state → link to Sync/Import
+- [ ] Add navigation link “Games”
+- [ ] Add a minimal “game detail” page (optional)
+
+**Acceptance Criteria**
+- [ ] User can view imported games at `/games`
+
+---
+
+## Sprint 9: Auto-Pull Game List (Sync)
+**Duration**: 2-4 hours  
+**Goal**: Pull the complete BGA game list directly (no copy/paste)
+
+**Tasks**
+- [ ] Create `backend/services/bga_pull_game_list.py`
+  - [ ] Fetch `https://boardgamearena.com/gamelist?allGames=`
+  - [ ] Extract JSON like `bookmarklet-tool/GameList.js`
+  - [ ] Output TSV matching `docs/DATA_FORMATS.md` (Game List format)
+- [ ] Add `POST /api/sync/pull/game-list`
+- [ ] Add Sync UI button “Pull Game List”
+- [ ] Import via existing `import_service.import_data()`
+
+**Acceptance Criteria**
+- [ ] One click pulls and imports game list successfully
+
+---
+
+## Sprint 10: Tournaments Browsing (UI + API)
 **Duration**: 4-6 hours  
-**Goal**: End-to-end testing and bug fixes
+**Goal**: Browse imported tournaments and their match results
+
+**Tasks**
+- [ ] Create `GET /api/tournaments` and `GET /api/tournaments/<id>`
+  - [ ] Include tournament summary + matches + players
+- [ ] Create `/tournaments` + `/tournaments/<id>` pages
+  - [ ] Tournament list: name, game, dates, matches, timeouts, players
+  - [ ] Tournament detail: match list + per-player rows
+- [ ] Add navigation link “Tournaments”
+
+**Acceptance Criteria**
+- [ ] User can browse imported tournament data end-to-end
+
+---
+
+## Sprint 11: Auto-Pull Tournament Stats (Sync)
+**Duration**: 4-8 hours  
+**Goal**: Pull tournament stats from BGA given tournament IDs
+
+**Tasks**
+- [ ] Create `backend/services/bga_pull_tournament_stats.py`
+  - [ ] Accept list of tournament IDs
+  - [ ] Use same data sources as `bookmarklet-tool/TournamentStats.js`
+  - [ ] Output TSV matching Tournament Stats format
+- [ ] Add `POST /api/sync/pull/tournament-stats`
+- [ ] Add Sync UI section for tournament IDs
+- [ ] Import via existing importer
+
+**Acceptance Criteria**
+- [ ] Tournament IDs can be pulled and show up in `/tournaments`
+
+---
+
+## Sprint 12: Matches & Moves Browsing (UI + API)
+**Duration**: 4-7 hours  
+**Goal**: Browse imported matches (tables) and move timelines
+
+**Tasks**
+- [ ] Create `GET /api/matches` and `GET /api/matches/<table_id>`
+  - [ ] Include match header + ordered move timeline
+- [ ] Create `/matches` + `/matches/<table_id>` pages
+  - [ ] Match list: table id, game name, move count, imported_at
+  - [ ] Match detail: move table + basic stats (duration, turns per player)
+- [ ] Add navigation link “Matches”
+
+**Acceptance Criteria**
+- [ ] User can browse imported Move Stats end-to-end
+
+---
+
+## Sprint 13: Auto-Pull Move Stats (Sync)
+**Duration**: 6-10 hours  
+**Goal**: Pull move timelines from BGA match reviews given table IDs
+
+**Tasks**
+- [ ] Create `backend/services/bga_pull_move_stats.py`
+  - [ ] Accept table IDs
+  - [ ] Navigate to `gamereview?table=<id>` and extract logs (like `MoveStats.js`)
+  - [ ] Output semicolon format matching Move Stats spec
+- [ ] Add `POST /api/sync/pull/move-stats`
+- [ ] Add Sync UI section for table IDs (multi-line input)
+- [ ] Import via existing importer
+
+**Acceptance Criteria**
+- [ ] Table IDs can be pulled and show up in `/matches`
+
+---
+
+## Sprint 14: Integration & Testing (Comprehensive)
+
+**Duration**: 6-8 hours  
+**Goal**: End-to-end testing of ALL data types (Player Stats, Games, Tournaments, Matches)
 
 ### Tasks
 
-- [ ] End-to-end test import workflow
-  - [ ] Start with empty database
-  - [ ] Import Player Stats export with multiple players
-  - [ ] Verify players appear in list
-  - [ ] Verify player detail pages work
-- [ ] Test idempotency
-  - [ ] Import same export twice
+- [ ] End-to-end test all import workflows
+  - [ ] Player Stats: manual + auto-pull → browse
+  - [ ] Game List: manual + auto-pull → browse
+  - [ ] Tournament Stats: manual + auto-pull → browse
+  - [ ] Move Stats: manual + auto-pull → browse
+- [ ] Test idempotency across all types
+  - [ ] Re-import same data for each type
   - [ ] Verify no duplicates created
-  - [ ] Verify updated counts in import response
-- [ ] Test error handling
-  - [ ] Invalid input format
+  - [ ] Verify updated counts
+- [ ] Test error handling for all types
+  - [ ] Invalid input formats
   - [ ] Missing required fields
-  - [ ] Malformed rows (should skip, not fail entire import)
-  - [ ] Empty input
+  - [ ] Malformed rows
+  - [ ] Empty inputs
+- [ ] Test cross-data-type scenarios
+  - [ ] Games referenced in player stats exist
+  - [ ] Tournament matches link correctly
+  - [ ] Data consistency across types
 - [ ] Fix any bugs discovered
   - [ ] Parser edge cases
   - [ ] Database constraint violations
   - [ ] UI rendering issues
-- [ ] Test edge cases
-  - [ ] Player with no games
-  - [ ] Empty rank field
-  - [ ] "N/A" ELO value
-  - [ ] Very large imports (100+ players)
-- [ ] Performance testing (optional)
+- [ ] Test edge cases for all types
+  - [ ] Large imports (100+ records)
+  - [ ] Empty states
+  - [ ] Special characters in names
+- [ ] Performance testing
   - [ ] Import time for large datasets
-  - [ ] Page load times
+  - [ ] Page load times for all browse pages
+  - [ ] Database query performance
 - [ ] Cross-browser testing (optional)
   - [ ] Chrome, Firefox, Safari
 - [ ] Mobile responsiveness testing
-  - [ ] Test on mobile device or browser dev tools
+  - [ ] Test all pages on mobile/tablet
 
 ### Deliverables
 
-- All test scenarios pass
+- All test scenarios pass for all data types
 - Bug fixes applied
 - Edge cases handled
+- Performance is acceptable
 
 ### Acceptance Criteria
 
-- All Phase 1 acceptance criteria met
-- Import → Browse workflow works end-to-end
-- Error handling works correctly
+- Import → Browse workflow works for all 4 data types
+- Error handling works correctly across all types
 - No critical bugs remain
+- App is usable on mobile devices
 
 ### Testing Scenarios
 
-1. **First Import**: Empty DB → Import → Browse
-2. **Re-Import**: Same data → No duplicates
-3. **Invalid Input**: Bad format → Error message
-4. **Partial Valid Data**: Mix of valid/invalid → Valid imported, errors reported
-5. **Edge Cases**: Empty rank, N/A ELO, no games
+1. **First Import (Each Type)**: Empty DB → Import → Browse
+2. **Re-Import (Each Type)**: Same data → No duplicates
+3. **Invalid Input (Each Type)**: Bad format → Error message
+4. **Cross-Type**: Import games, then player stats → games linked correctly
+5. **Large Scale**: Import 100+ players, games, tournaments → performance acceptable
 
 ---
 
-## Sprint 9: Polish & Refinement
+## Sprint 15: Polish & Refinement (Comprehensive)
 
-**Duration**: 3-4 hours  
-**Goal**: Improve UX and code quality
+**Duration**: 4-6 hours  
+**Goal**: Improve UX and code quality across ALL pages and features
 
 ### Tasks
 
-- [ ] Improve error messages
+- [ ] Improve error messages across all import types
   - [ ] More descriptive validation errors
   - [ ] User-friendly error messages in UI
-- [ ] Add loading states
+  - [ ] Consistent error formatting
+- [ ] Add/improve loading states everywhere
   - [ ] Spinner animations
+  - [ ] Progress bars for auto-pull
   - [ ] Skeleton screens (optional)
-- [ ] Improve styling
-  - [ ] Consistent spacing and colors
+- [ ] Improve styling consistency
+  - [ ] Consistent spacing and colors across all pages
   - [ ] Better typography
-  - [ ] Improved table styling
-- [ ] Add navigation improvements
-  - [ ] Breadcrumbs (optional)
-  - [ ] Active page highlighting
+  - [ ] Improved table styling (all browse pages)
+  - [ ] Consistent card/section layouts
+- [ ] Navigation improvements
+  - [ ] Clear active page highlighting
+  - [ ] Breadcrumbs for detail pages (optional)
+  - [ ] Consistent navigation across all sections
 - [ ] Add helpful UI elements
   - [ ] Tooltips for unclear fields
-  - [ ] Confirmation messages
+  - [ ] Confirmation messages for destructive actions
   - [ ] Success animations
+  - [ ] Empty state illustrations/helpful text
 - [ ] Code cleanup
-  - [ ] Add docstrings to functions
+  - [ ] Add docstrings to all functions
   - [ ] Remove debug print statements
   - [ ] Organize imports
-- [ ] Update documentation
-  - [ ] README.md with usage instructions
+  - [ ] Consistent code style
+- [ ] Documentation updates
+  - [ ] README.md with complete usage instructions
+  - [ ] Update all docs to reflect Phase 2 completion
   - [ ] Inline code comments where needed
+  - [ ] User guide for all features
 
 ### Deliverables
 
-- Polished UI
-- Improved error messages
-- Clean, documented code
+- Polished UI across all pages
+- Improved error messages everywhere
+- Clean, well-documented code
+- Complete user documentation
 
 ### Acceptance Criteria
 
-- UI is visually appealing
-- Error messages are helpful
+- UI is visually appealing and consistent
+- Error messages are helpful everywhere
 - Code is well-documented
-- User can complete import workflow without confusion
+- User can complete all workflows without confusion
+- Documentation is complete and accurate
 
 ---
 
-## Future Phase Sprints (Out of Scope for Phase 1)
+## Phase 3: Advanced Features & Usability
 
-### Phase 2: Additional Import Types
-
-- **Sprint 10**: Game List Import
-- **Sprint 11**: Game List UI
-- **Sprint 12**: Move Stats Import
-- **Sprint 13**: Match Detail UI
-- **Sprint 14**: Tournament Stats Import
-- **Sprint 15**: Tournament Detail UI
-
-### Phase 3: Quality & Usability
-
-- **Sprint 16**: Search & Filtering
+- **Sprint 16**: Search & Filtering (across all data types)
 - **Sprint 17**: Edit/Delete CRUD Operations
-- **Sprint 18**: Export Functionality
-- **Sprint 19**: Import History/Audit
-- **Sprint 20**: Performance Optimization
+- **Sprint 18**: Data Export Functionality (CSV, JSON, Excel)
+- **Sprint 19**: Import History/Audit Log
+- **Sprint 20**: Performance Optimization & Caching
+- **Sprint 21**: Advanced Analytics & Visualizations
 
 ---
 
@@ -775,28 +903,55 @@ At end of Phase 1:
 ### Progress Tracking
 
 Update this document as sprints are completed:
+
+**Phase 1 (Player Stats Vertical Slice):**
 - [x] Sprint 0: Project Setup - ✅ **Complete**
 - [x] Sprint 1: Database Foundation - ✅ **Complete**
 - [x] Sprint 2: Flask App Skeleton - ✅ **Complete**
 - [x] Sprint 3: Player Stats Parser - ✅ **Complete**
 - [x] Sprint 4: Import Service & API - ✅ **Complete**
 - [x] Sprint 5: Base Frontend & Import UI - ✅ **Complete**
-- [ ] Sprint 6: Players List API & UI - [Status]
-- ... (continue for all sprints)
+- [x] Sprint 6: Players List API & UI - ✅ **Complete**
+- [x] Sprint 7: Player Detail API & UI - ✅ **Complete**
+
+**Phase 2 (Full Bookmarklet Coverage):**
+- [ ] Sprint 8: Games Browsing (UI + API) - 🟢 **Next**
+- [ ] Sprint 9: Auto-Pull Game List
+- [ ] Sprint 10: Tournaments Browsing (UI + API)
+- [ ] Sprint 11: Auto-Pull Tournament Stats
+- [ ] Sprint 12: Matches & Moves Browsing (UI + API)
+- [ ] Sprint 13: Auto-Pull Move Stats
+
+**Integration & Polish:**
+- [ ] Sprint 14: Integration & Testing (Comprehensive)
+- [ ] Sprint 15: Polish & Refinement (Comprehensive)
+
+**Phase 3 (Advanced Features):**
+- [ ] Sprint 16+: See Phase 3 section above
 
 ---
 
 ## Estimated Timeline
 
-**Phase 1 (9 Sprints)**: 35-50 hours total
+**Phase 1 (Sprints 0-7)**: ✅ Complete (~35-45 hours total)
 
-- **Week 1**: Sprints 0-4 (Setup through Import Service)
-- **Week 2**: Sprints 5-9 (Frontend through Polish)
+**Phase 2 (Sprints 8-13)**: ~25-40 hours
+- Sprint 8-9: Games (6-9 hours)
+- Sprint 10-11: Tournaments (8-12 hours)
+- Sprint 12-13: Matches/Moves (10-17 hours)
+
+**Integration & Polish (Sprints 14-15)**: ~10-14 hours
+
+**Phase 3 (Sprints 16+)**: Variable based on features selected
 
 **For one developer working part-time (4 hours/day)**:
-- Phase 1: ~2 weeks
-- Complete app (all phases): ~4-6 weeks
+- Phase 1: ✅ Complete
+- Phase 2: ~1.5-2 weeks
+- Integration & Polish: ~3-4 days
+- **Total through polish**: ~3-4 weeks from now
 
 **For one developer working full-time (8 hours/day)**:
-- Phase 1: ~1 week
-- Complete app (all phases): ~2-3 weeks
+- Phase 1: ✅ Complete
+- Phase 2: ~4-5 days
+- Integration & Polish: ~1.5-2 days
+- **Total through polish**: ~1 week from now

@@ -1,10 +1,10 @@
-# ✅ Auto-Pull Implementation Complete
+# ✅ Player Stats Auto-Pull Implementation Complete
 
 All tasks from the implementation plan have been completed successfully!
 
 ## Summary
 
-I've successfully implemented a Playwright-based auto-pull system that eliminates manual copy/paste for importing data from BoardGameArena. The system is now fully functional for Player Stats, with infrastructure in place for all other data types.
+I've successfully implemented a Playwright-based auto-pull system that eliminates manual copy/paste for importing data from BoardGameArena **for Player Stats**. The system is fully functional for Player Stats, with infrastructure (models/parsers/importers) in place for the other bookmarklet data types.
 
 ## What Was Delivered
 
@@ -98,11 +98,17 @@ python app.py
 ✅ Auto-detection of import formats
 ✅ Rate limiting to protect BGA servers
 ✅ Session management (validate/logout)
+✅ Players browsing (list + detail) for imported Player Stats
 
 ### What's Ready (Needs Pull Service)
 🟡 Game List auto-pull (parser & importer ready)
 🟡 Move Stats auto-pull (parser & importer ready)
 🟡 Tournament Stats auto-pull (parser & importer ready)
+
+### What's Next (Browse UI)
+🟡 Games browsing (list/detail) for imported Game List
+🟡 Tournaments browsing (list/detail) for imported Tournament Stats
+🟡 Matches browsing (list/detail) for imported Move Stats
 
 ## Next Steps for Full Coverage
 
@@ -112,7 +118,7 @@ To add auto-pull for the remaining data types, create pull services similar to `
 2. **Move Stats**: Navigate to /gamereview, parse logs
 3. **Tournament Stats**: Navigate to /tournament, fetch match data
 
-The infrastructure (models, parsers, importers, UI) is all in place.
+The infrastructure (models, parsers, importers) is in place; Phase 2 will add the remaining pull services and browse pages.
 
 ## Testing Recommendations
 
