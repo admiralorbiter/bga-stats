@@ -113,14 +113,33 @@
                 </div>
             </div>
 
-            <!-- Coming Soon sections -->
-            <div class="opacity-50">
-                <h3 class="text-md font-medium text-gray-900 mb-3">Game List (Coming Soon)</h3>
-                <p class="text-sm text-gray-600 mb-4">Pull the complete list of games available on BGA.</p>
-                <button type="button" disabled
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
-                    Pull Game List
+            <!-- Game List Pull Section -->
+            <div>
+                <h3 class="text-md font-medium text-gray-900 mb-3">Game List</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Pull the complete list of games available on BGA.
+                    <span class="text-xs text-gray-500">(~300-400 games)</span>
+                </p>
+                
+                <button type="button" id="pull-game-list-btn"
+                        class="inline-flex items-center px-6 py-3 border-2 border-purple-700 text-base font-medium rounded-md shadow-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    <span id="pull-game-list-text">🎲 Pull Game List</span>
+                    <svg id="pull-game-list-spinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                 </button>
+                
+                <!-- Progress indicator (simple, no percentage needed) -->
+                <div id="game-list-progress" class="hidden mt-3 text-sm text-purple-700">
+                    <div class="flex items-center">
+                        <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Fetching game catalog from BGA...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

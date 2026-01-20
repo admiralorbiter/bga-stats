@@ -26,7 +26,7 @@ This document breaks down the development work into small, manageable sprints. E
 | Sprint | Name | Duration | Status | Focus |
 |--------|------|----------|--------|-------|
 | Sprint 8 | Games Browsing (UI + API) | 3-5 hours | ✅ Complete | Browse game catalog |
-| Sprint 9 | Auto-Pull Game List | 2-4 hours | Pending | Sync game data |
+| Sprint 9 | Auto-Pull Game List | 2-4 hours | ✅ Complete | Sync game data |
 | Sprint 10 | Tournaments Browsing | 4-6 hours | Pending | Browse tournaments |
 | Sprint 11 | Auto-Pull Tournaments | 4-8 hours | Pending | Sync tournament data |
 | Sprint 12 | Matches & Moves Browsing | 4-7 hours | Pending | Browse match timelines |
@@ -34,7 +34,7 @@ This document breaks down the development work into small, manageable sprints. E
 | Sprint 14 | Integration & Testing | 6-8 hours | Pending | End-to-end all types |
 | Sprint 15 | Polish & Refinement | 4-6 hours | Pending | Final UX polish |
 
-**Phase 2 Progress**: Sprint 8 complete! Games browsing now available.
+**Phase 2 Progress**: Sprints 8-9 complete! Games browsing and auto-pull now available.
 
 **Bonus Features Added:**
 - ✅ Auto-Pull with Playwright (no copy/paste required!)
@@ -693,19 +693,44 @@ Files Created/Modified:
 
 ## Sprint 9: Auto-Pull Game List (Sync)
 **Duration**: 2-4 hours  
-**Goal**: Pull the complete BGA game list directly (no copy/paste)
+**Goal**: Pull the complete BGA game list directly (no copy/paste)  
+**Status**: ✅ **COMPLETE**
 
 **Tasks**
-- [ ] Create `backend/services/bga_pull_game_list.py`
-  - [ ] Fetch `https://boardgamearena.com/gamelist?allGames=`
-  - [ ] Extract JSON like `bookmarklet-tool/GameList.js`
-  - [ ] Output TSV matching `docs/DATA_FORMATS.md` (Game List format)
-- [ ] Add `POST /api/sync/pull/game-list`
+- [x] Create `backend/services/bga_pull_game_list.py`
+  - [x] Fetch `https://boardgamearena.com/gamelist?allGames=`
+  - [x] Extract JSON like `bookmarklet-tool/GameList.js`
+  - [x] Output TSV matching `docs/DATA_FORMATS.md` (Game List format)
+  - [x] Handle status mapping: "private" → "alpha", "public" → "published"
+- [x] Add `POST /api/sync/pull/game-list`
 - [ ] Add Sync UI button “Pull Game List”
-- [ ] Import via existing `import_service.import_data()`
+- [x] Import via existing `import_service.import_data()`
 
 **Acceptance Criteria**
-- [ ] One click pulls and imports game list successfully
+- [x] One click pulls and imports game list successfully
+- [x] ~1200 games imported from BGA
+- [x] Auto-redirect to `/games` page on success
+
+**Deliverables**
+- ✅ `backend/services/bga_pull_game_list.py` - BGAGameListPuller class
+- ✅ `POST /api/sync/pull/game-list` - API endpoint
+- ✅ Purple "🎲 Pull Game List" button on Sync page
+- ✅ Progress indicator with loading state
+- ✅ Auto-redirect to games page on success
+- ✅ Status value normalization (handles public/private/alpha/beta/published)
+
+**Implementation Notes**
+- Successfully pulls ~1200+ games from BGA
+- Uses same Playwright session as player stats
+- Purple color scheme (distinct from green player stats button)
+- Simple progress indicator (no percentage needed for single fetch)
+- Discovered and fixed "public" status mapping issue during testing
+
+**Bonus Enhancement Added**
+- ✅ Added "Show only games with player data" filter to Games page
+- Filters games to show only those with PlayerGameStat entries in database
+- Server-side filtering for efficiency
+- Works without requiring session/player ID
 
 ---
 

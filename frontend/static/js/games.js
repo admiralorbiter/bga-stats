@@ -8,10 +8,9 @@ $(document).ready(function() {
     const $searchInput = $('#search-input');
     const $statusFilter = $('#status-filter');
     const $premiumFilter = $('#premium-filter');
+    const $myGamesFilter = $('#my-games-filter');
     const $clearFilters = $('#clear-filters');
     const $resultsCount = $('#results-count');
-
-    let allGames = []; // Store all games for client-side filtering
 
     // Load games on page load
     loadGames();
@@ -20,19 +19,21 @@ $(document).ready(function() {
     let searchTimeout;
     $searchInput.on('input', function() {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(filterGames, 300);
+        searchTimeout = setTimeout(loadGames, 300);
     });
 
-    // Filter change handlers
-    $statusFilter.on('change', filterGames);
-    $premiumFilter.on('change', filterGames);
+    // Filter change handlers - reload from server when filters change
+    $statusFilter.on('change', loadGames);
+    $premiumFilter.on('change', loadGames);
+    $myGamesFilter.on('change', loadGames);
 
     // Clear filters button
     $clearFilters.on('click', function() {
         $searchInput.val('');
         $statusFilter.val('');
         $premiumFilter.val('');
-        filterGames();
+        $myGamesFilter.prop('checked', false);
+        loadGames();
     });
 
     function loadGames() {
@@ -41,17 +42,46 @@ $(document).ready(function() {
         $emptyState.hide();
         $gamesTable.hide();
 
+        // Build query parameters
+        const params = {};
+        
+        const searchTerm = $searchInput.val().trim();
+        if (searchTerm) {
+            params.search = searchTerm;
+        }
+        
+        const statusFilter = $statusFilter.val();
+        if (statusFilter) {
+            params.status = statusFilter;
+        }
+        
+        const premiumFilter = $premiumFilter.val();
+        if (premiumFilter) {
+            params.premium = premiumFilter;
+        }
+        
+        // Add has_stats filter if "My Games" is checked
+        if ($myGamesFilter.is(':checked')) {
+            params.has_stats = 'true';
+            console.log('Filtering to games with stats');
+        }
+
+        console.log('API params:', params);
+
         $.ajax({
             url: '/api/games',
             method: 'GET',
+            data: params,
             success: function(response) {
                 $loading.hide();
                 
-                if (response.success && response.games) {
-                    allGames = response.games;
-                    filterGames(); // Apply any active filters
+                if (response.success && response.games && response.games.length > 0) {
+                    renderGames(response.games);
+                    $gamesTable.show();
+                    $resultsCount.text(`Showing ${response.games.length} games`);
                 } else {
                     $emptyState.show();
+                    $resultsCount.text('Showing 0 games');
                 }
             },
             error: function(xhr) {
@@ -67,48 +97,6 @@ $(document).ready(function() {
         });
     }
 
-    function filterGames() {
-        const searchTerm = $searchInput.val().toLowerCase();
-        const statusFilter = $statusFilter.val();
-        const premiumFilter = $premiumFilter.val();
-
-        const filtered = allGames.filter(function(game) {
-            // Search filter
-            if (searchTerm) {
-                const nameMatch = game.name.toLowerCase().includes(searchTerm);
-                const displayMatch = game.display_name.toLowerCase().includes(searchTerm);
-                if (!nameMatch && !displayMatch) return false;
-            }
-
-            // Status filter
-            if (statusFilter && game.status !== statusFilter) {
-                return false;
-            }
-
-            // Premium filter
-            if (premiumFilter !== '') {
-                const isPremium = game.premium;
-                if ((premiumFilter === '1' && !isPremium) || 
-                    (premiumFilter === '0' && isPremium)) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        if (filtered.length > 0) {
-            renderGames(filtered);
-            $gamesTable.show();
-            $emptyState.hide();
-        } else {
-            $gamesTable.hide();
-            $emptyState.show();
-        }
-
-        // Update results count
-        $resultsCount.text(`Showing ${filtered.length} of ${allGames.length} games`);
-    }
 
     function renderGames(games) {
         $gamesTbody.empty();

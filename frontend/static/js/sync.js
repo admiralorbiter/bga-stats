@@ -29,6 +29,11 @@ $(document).ready(function() {
     const $copyPlayerIdBtn = $('#copy-player-id-btn');
     const $useMyIdBtn = $('#use-my-id-btn');
     
+    const $pullGameListBtn = $('#pull-game-list-btn');
+    const $pullGameListText = $('#pull-game-list-text');
+    const $pullGameListSpinner = $('#pull-game-list-spinner');
+    const $gameListProgress = $('#game-list-progress');
+    
     let currentPlayerId = null;
 
     // Check session status on load
@@ -72,6 +77,11 @@ $(document).ready(function() {
             $playerIds.val(currentPlayerId);
             $playerIds.focus();
         }
+    });
+
+    // Pull game list button
+    $pullGameListBtn.on('click', function() {
+        pullGameList();
     });
 
     function checkSessionStatus() {
@@ -356,5 +366,52 @@ $(document).ready(function() {
         $progressPercent.text('100%');
         $progressText.text('Complete!');
         $progressDetail.text('Data imported successfully');
+    }
+
+    function pullGameList() {
+        setPullGameListLoading(true);
+        hideMessages();
+        $gameListProgress.show();
+
+        $.ajax({
+            url: '/api/sync/pull/game-list',
+            method: 'POST',
+            success: function(response) {
+                setPullGameListLoading(false);
+                $gameListProgress.hide();
+                
+                if (response.success) {
+                    const count = response.games_imported || 0;
+                    const updated = response.games_updated || 0;
+                    showSuccess(`Successfully imported ${count} games (${updated} updated)`);
+                    
+                    // Optionally redirect to /games after short delay
+                    setTimeout(function() {
+                        window.location.href = '/games';
+                    }, 2000);
+                } else {
+                    showError(response.error || 'Failed to import games');
+                }
+            },
+            error: function(xhr) {
+                setPullGameListLoading(false);
+                $gameListProgress.hide();
+                
+                const errorMsg = xhr.responseJSON?.error || 'Failed to pull game list';
+                showError(errorMsg);
+            }
+        });
+    }
+
+    function setPullGameListLoading(isLoading) {
+        $pullGameListBtn.prop('disabled', isLoading);
+        
+        if (isLoading) {
+            $pullGameListText.text('Pulling...');
+            $pullGameListSpinner.removeClass('hidden');
+        } else {
+            $pullGameListText.text('🎲 Pull Game List');
+            $pullGameListSpinner.addClass('hidden');
+        }
     }
 });

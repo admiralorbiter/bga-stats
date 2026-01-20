@@ -83,12 +83,15 @@ python app.py
 - `frontend/static/js/games.js`
 - `frontend/static/js/game_detail.js`
 
-### Modified Files (10)
+### New Files Added in Sprint 9 (1)
+- `backend/services/bga_pull_game_list.py`
+
+### Modified Files (12)
 - `requirements.txt` - Added Playwright
 - `backend/models.py` - Added Match, Tournament models
 - `backend/services/import_service.py` - Added all importers
 - `backend/routes/main.py` - Added /sync route + /games routes
-- `backend/routes/api.py` - Added sync endpoints + games endpoints
+- `backend/routes/api.py` - Added sync endpoints + games endpoints + game-list pull endpoint
 - `frontend/templates/base.html` - Added Sync nav link + Games nav link
 - `frontend/templates/import.html` - Added all import types
 - `README.md` - Updated with auto-pull instructions
@@ -99,6 +102,7 @@ python app.py
 ### What Works Now
 ✅ Login to BGA once, session persists
 ✅ Pull player stats by ID or group
+✅ Pull complete game list (1200+ games)
 ✅ Automatic data import (no copy/paste)
 ✅ Manual import for all 4 data types
 ✅ Auto-detection of import formats
@@ -108,7 +112,6 @@ python app.py
 ✅ Games browsing (list + detail) for imported Game List
 
 ### What's Ready (Needs Pull Service)
-🟡 Game List auto-pull (parser & importer ready)
 🟡 Move Stats auto-pull (parser & importer ready)
 🟡 Tournament Stats auto-pull (parser & importer ready)
 

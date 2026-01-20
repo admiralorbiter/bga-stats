@@ -314,6 +314,72 @@ def sync_pull_player_stats():
         }), 500
 
 
+@api_bp.route('/sync/pull/game-list', methods=['POST'])
+def sync_pull_game_list():
+    """
+    Pull complete game catalog from BGA using Playwright.
+    
+    No request body needed.
+    
+    Returns:
+        JSON response with import results
+    """
+    from backend.services.bga_session_service import get_session_service
+    from backend.services.bga_pull_game_list import BGAGameListPuller
+    from backend.services.import_service import import_data
+    
+    try:
+        # Get session
+        session_service = get_session_service()
+        
+        if not session_service.has_saved_session():
+            return jsonify({
+                'success': False,
+                'error': 'No saved session. Please log in first.'
+            }), 401
+        
+        # Create browser context from saved session
+        browser = session_service.create_browser(headless=True)
+        context = session_service.create_context_from_saved_session()
+        
+        if not context:
+            browser.close()
+            return jsonify({
+                'success': False,
+                'error': 'Failed to load session. Please log in again.'
+            }), 401
+        
+        try:
+            # Create puller
+            puller = BGAGameListPuller(context)
+            
+            # Pull game list
+            tsv_data = puller.pull_game_list()
+            
+            if not tsv_data:
+                return jsonify({
+                    'success': False,
+                    'error': 'Failed to pull game list from BGA'
+                }), 500
+            
+            # Import the data using existing import pipeline
+            import_result = import_data(tsv_data, import_type='game_list')
+            
+            # Return the import result
+            return jsonify(import_result), 200 if import_result['success'] else 400
+            
+        finally:
+            context.close()
+            browser.close()
+            session_service.cleanup()
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Pull failed: {str(e)}'
+        }), 500
+
+
 @api_bp.route('/players', methods=['GET'])
 def get_players():
     """
@@ -426,6 +492,7 @@ def get_games():
         status (str, optional): Filter by status (alpha, beta, published)
         premium (str, optional): Filter by premium (0 or 1)
         search (str, optional): Search by name or display_name
+        has_stats (str, optional): Filter to games with player stats (any player)
     
     Returns:
         JSON array of games
@@ -433,6 +500,14 @@ def get_games():
     try:
         session = get_session()
         query = session.query(Game)
+        
+        # Filter by games that have player stats (any player)
+        has_stats = request.args.get('has_stats')
+        if has_stats and has_stats.lower() == 'true':
+            print("Filtering to games with player stats")
+            # Join with PlayerGameStat to only show games that have stats
+            query = query.join(PlayerGameStat, PlayerGameStat.game_id == Game.id)
+            print(f"Query after has_stats filter: {query}")
         
         # Apply filters from query params
         status = request.args.get('status')
@@ -451,8 +526,8 @@ def get_games():
                 (Game.display_name.like(search_pattern))
             )
         
-        # Order by display name
-        games = query.order_by(Game.display_name).all()
+        # Order by display name and ensure distinct results
+        games = query.order_by(Game.display_name).distinct().all()
         
         games_data = []
         for game in games:
