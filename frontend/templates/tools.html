@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Tools - BGA Stats{% endblock %}
+
+{% block content %}
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Data Collection Tools</h1>
+        <p class="mt-2 text-sm text-gray-600">
+            Install bookmarklets to extract your statistics from BoardGameArena.
+        </p>
+    </div>
+
+    <!-- Installation Instructions -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">How to Install Bookmarklets</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li><strong>Desktop:</strong> Drag the bookmarklet button below to your bookmarks bar</li>
+                        <li><strong>Mobile:</strong> Long-press and "Add to Bookmarks" or use the copy button</li>
+                        <li>Visit the appropriate BGA page (player profile, game list, etc.)</li>
+                        <li>Click the bookmarklet from your bookmarks</li>
+                        <li>Copy the generated data and paste it in the Import page</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 1: Available Now -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Available Now (Phase 1)</h2>
+        
+        <!-- PlayerStats Bookmarklet Card -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900">Player Statistics</h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Collects comprehensive player statistics including XP, karma, game-specific ELO, ranks, matches, and wins.
+                    </p>
+                    
+                    <div class="mt-4 space-y-2">
+                        <div class="flex items-start">
+                            <svg class="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Where to use:</p>
+                                <p class="text-sm text-gray-600">Any player profile page or group page on BGA (boardgamearena.com/player?id=... or boardgamearena.com/group?id=...)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <svg class="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Exports:</p>
+                                <p class="text-sm text-gray-600">Player name, Player ID, XP, karma, recent games, per-game stats (ELO, rank, matches, wins)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Install Buttons -->
+                    <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        <a href="javascript:{ function parsePlayerStats(player_page, player_id) { var output = &quot;&quot;; var player = player_page.querySelector(&quot;#player_name&quot;).innerText.trim(); var exp = player_page.querySelector(&quot;#pageheader_prestige&quot;).innerText.trim().replace('k','000').replace(' XP',''); var karma = player_page.querySelector(&quot;.progressbar_label&quot;).getElementsByClassName(&quot;value&quot;)[0].innerText.replace('%',''); var matches = 0; var wins = 0; var penalties = player_page.querySelector(&quot;#pagesection_reputation&quot;).getElementsByClassName(&quot;row-value&quot;)[0].innerText.match(/(\d+)/g); var abandoned = penalties[0]; var timeout = penalties[1]; var recent = penalties[2]; var lastSeenStr = player_page.querySelector(&quot;#last_seen&quot;).innerText; var lastSeenDays = 0; var lastSeenMatch = lastSeenStr.match(/(\d+|NaN)?\s*(.*)/); if (lastSeenStr == &quot;&quot; || lastSeenStr == &quot;{LAST_SEEN}&quot; || lastSeenMatch[1] == &quot;NaN&quot;) lastSeenDays = 0; else if (lastSeenMatch[1] !== undefined) lastSeenDays = Number(lastSeenMatch[1]); else lastSeenDays = 1; if (lastSeenDays == 0) { lastSeenDays = 0 } else if (String(lastSeenMatch[2]).search(&quot;év|year&quot;) != -1) { lastSeenDays *= 365; } else if (String(lastSeenMatch[2]).search(&quot;hónap|month&quot;) != -1) { lastSeenDays *= 30; } else if (String(lastSeenMatch[2]).search(&quot;(mn|h|seconds|perc|óra|néhány pillanattal) (ezelőtt|ago)&quot;) != -1) { lastSeenDays = 0; } var gameDivs = player_page.querySelector(&quot;#pagesection_prestige&quot;).getElementsByClassName(&quot;row&quot;)[0].getElementsByClassName(&quot;palmares_game&quot;); for (var i = 0; i < gameDivs.length; i++) { var game = gameDivs[i].getElementsByClassName(&quot;gamename&quot;)[0].innerText; var details = gameDivs[i].getElementsByClassName(&quot;palmares_details&quot;)[0].innerText; var arr = details.match(/(\d+[\s0-9]*)/g); var played = Number(arr[0].replace(/\s/g, '')); if (arr.length == 4) { played += Number(arr[1].replace(/\s/g, '')); } var won = Number(arr[arr.length - 2].replace(/\s/g, '')); matches += played; wins += won; var elo = gameDivs[i].getElementsByClassName(&quot;gamerank_value&quot;)[0].innerText; var rank = &quot;&quot;; var rankStr = gameDivs[i].getElementsByClassName(&quot;gamerank_no&quot;)[0]; if (rankStr) rank = rankStr.innerText.match(/(\d+)?/)[0]; output += player + &quot;\t&quot; + player_id + &quot;\t&quot; + game + &quot;\t&quot; + elo + &quot;\t&quot; + rank + &quot;\t&quot; + played + &quot;\t&quot; + won + &quot;\n&quot;; } output = player + &quot;\t&quot; + player_id + &quot;\tXP\t&quot; + exp + &quot;\t&quot; + karma + &quot;\t&quot; + matches + &quot;\t&quot; + wins + &quot;\n&quot; + player + &quot;\t&quot; + player_id + &quot;\tRecent games\t&quot; + abandoned + &quot;\t&quot; + timeout + &quot;\t&quot; + recent + &quot;\t&quot; + lastSeenDays + &quot;\n&quot; + output; return output; } function exportPlayerStats() { var exported = document.getElementById(&quot;export_textarea&quot;); exported.value = &quot;Loading... &quot;; var loading = async () => { var exported_str = &quot;&quot;; const parser = new DOMParser(); const members = document.getElementById(&quot;member_list&quot;).value.trim().split(&quot;\n&quot;); for (let i = 0; i < members.length; ++i) { var player_id = members[i].split(/[;\t]+/)[1]; const response = await fetch('https://boardgamearena.com/player?id='+player_id); const html_str = await response.text(); const doc = parser.parseFromString(html_str, &quot;text/html&quot;); try { exported_str = exported_str + parsePlayerStats(doc, player_id); } catch (err) { console.log(members[i] + &quot;\n&quot; + err); console.log(doc); window.alert(members[i] + &quot;\n&quot; + err); } exported.value = &quot;Loading... &quot; + (i+1) + &quot;/&quot; + members.length; } exported.value = exported_str.trim(); }; loading(); } function checkMembership() { var group_id = document.getElementById(&quot;group_filter&quot;).value.trim(); if (group_id == &quot;&quot;) return; const players = document.getElementById(&quot;member_list&quot;).value.trim().split(&quot;\n&quot;); var checkedCount = 0; var loading = async () => { var checked = &quot;&quot;; const response = await fetch('https://boardgamearena.com/group?id='+group_id); const html_str = await response.text(); const parser = new DOMParser(); const doc = parser.parseFromString(html_str, &quot;text/html&quot;); const memberlist = doc.querySelectorAll(&quot;.list_of_players .player_in_list a.playername&quot;); var members = new Set(); memberlist.forEach(member => members.add(member.innerText)); var unconfirmed = new Set(); players.forEach(player => { const name = player.split(/[;\t]+/)[0]; if (members.has(name)) { checked += player + &quot;\t1\n&quot;; checkedCount++; document.getElementById(&quot;member_list&quot;).value = &quot;Loading... &quot; + checkedCount + &quot;/&quot; + players.length; } else { unconfirmed.add(player); } }); for (const player of unconfirmed) { const player_id = player.split(/[;\t]+/)[1]; const response = await fetch('https://boardgamearena.com/player?id='+player_id); const html_str = await response.text(); const doc = parser.parseFromString(html_str, &quot;text/html&quot;); var groups = new Set(); doc.querySelectorAll(&quot;#playergroups .bga-link&quot;).forEach(group => groups.add(group.getAttribute(&quot;href&quot;).match(/id=(\d+)/)[1]) ); if (groups.has(group_id)) { checked += player + &quot;\t1\n&quot;; } else { checked += player + &quot;\t0\n&quot;; } checkedCount++; document.getElementById(&quot;member_list&quot;).value = &quot;Loading... &quot; + checkedCount + &quot;/&quot; + players.length; } document.getElementById(&quot;member_list&quot;).value = checked.trim(); }; loading(); } function displayExportSection() { var rootdiv = document.createElement(&quot;div&quot;); rootdiv.className = &quot;pageheader&quot;; const divStyle = &quot;float: left; margin: 0 10px;&quot;; var membersdiv = document.createElement(&quot;div&quot;); membersdiv.setAttribute(&quot;style&quot;, divStyle); var exportdiv = document.createElement(&quot;div&quot;); exportdiv.setAttribute(&quot;style&quot;, divStyle); rootdiv.appendChild(membersdiv); rootdiv.appendChild(exportdiv); var membersheader = document.createElement(&quot;h3&quot;); membersheader.innerText = &quot;Name\tPlayer ID&quot;; membersheader.setAttribute(&quot;style&quot;, &quot;text-transform: none;&quot;); var memberlist = document.createElement(&quot;textarea&quot;); memberlist.setAttribute(&quot;id&quot;, &quot;member_list&quot;); memberlist.setAttribute(&quot;cols&quot;, &quot;50&quot;); memberlist.setAttribute(&quot;rows&quot;, &quot;10&quot;); memberlist.setAttribute(&quot;style&quot;, &quot;display: block;&quot;); if (m[1] == &quot;player&quot;) { memberlist.value = document.getElementById(&quot;player_name&quot;).innerText.trim() + &quot;\t&quot; + m[2]; } else { const members = document.querySelectorAll(&quot;.list_of_players .player_in_list a.playername&quot;); members.forEach(member => { var player_id = member.getAttribute(&quot;href&quot;).replace(&quot;/player?id=&quot;, &quot;&quot;); memberlist.value = memberlist.value + member.innerText.trim() + &quot;\t&quot; + player_id + &quot;\n&quot;; }); } membersdiv.appendChild(membersheader); membersdiv.appendChild(memberlist); var groupFilterText = document.createElement(&quot;p&quot;); groupFilterText.innerText = &quot;Check group membership:&quot;; membersdiv.appendChild(groupFilterText); var groupFilter = document.createElement(&quot;input&quot;); groupFilter.setAttribute(&quot;id&quot;, &quot;group_filter&quot;); groupFilter.setAttribute(&quot;type&quot;, &quot;text&quot;); groupFilter.setAttribute(&quot;style&quot;, &quot;width: 180px;&quot;); if (m[1] == &quot;group&quot;) { groupFilter.value = m[2]; } else { groupFilter.setAttribute(&quot;placeholder&quot;, &quot;Enter Group ID&quot;); } membersdiv.appendChild(groupFilter); var groupFilterBtn = document.createElement(&quot;button&quot;); groupFilterBtn.setAttribute(&quot;type&quot;, &quot;button&quot;); groupFilterBtn.setAttribute(&quot;id&quot;, &quot;group_filter_btn&quot;); groupFilterBtn.setAttribute(&quot;class&quot;, &quot;bgabutton bgabutton_blue&quot;); groupFilterBtn.setAttribute(&quot;onclick&quot;, &quot;checkMembership()&quot;); groupFilterBtn.setAttribute(&quot;style&quot;, &quot;width: auto; margin: 0px 10px 10px 10px;&quot;); groupFilterBtn.innerText = &quot;Check&quot;; membersdiv.appendChild(groupFilterBtn); var exportheader = document.createElement(&quot;h3&quot;); exportheader.innerText = &quot;Player Name\tPlayer ID\tGame Name\tELO\tRank\tMatches\tWins&quot;; exportheader.setAttribute(&quot;style&quot;, &quot;text-transform: none;&quot;); var output = document.createElement(&quot;textarea&quot;); output.setAttribute(&quot;id&quot;, &quot;export_textarea&quot;); output.setAttribute(&quot;cols&quot;, &quot;100&quot;); output.setAttribute(&quot;rows&quot;, &quot;10&quot;); output.setAttribute(&quot;style&quot;, &quot;display: block;&quot;); output.value = &quot;Press Start button to start the data collection.&quot;; var startBtn = document.createElement(&quot;button&quot;); startBtn.setAttribute(&quot;type&quot;, &quot;button&quot;); startBtn.setAttribute(&quot;id&quot;, &quot;startBtn&quot;); startBtn.setAttribute(&quot;class&quot;, &quot;bgabutton bgabutton_blue&quot;); startBtn.setAttribute(&quot;onclick&quot;, &quot;exportPlayerStats()&quot;); startBtn.setAttribute(&quot;style&quot;, &quot;width: auto; margin: 10px 0;&quot;); startBtn.innerText = &quot;Start&quot;; exportdiv.appendChild(exportheader); exportdiv.appendChild(output); exportdiv.appendChild(startBtn); document.querySelector(&quot;#pageheader&quot;).parentNode.prepend(rootdiv); } m = window.location.href.match(&quot;.*boardgamearena.com/(group|player)\\?id=(\\d+)&quot;); if (m || confirm(&quot;It seems, you are not on a BGA group or player page.\nWould you still like to run the script?&quot;)) { try { displayExportSection(); } catch(error) { alert(&quot;An error occurred:\n&quot;+error); } } };void(0);" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 cursor-move"
+                           onclick="return false;">
+                            📊 BGA Player Stats
+                        </a>
+                        <button type="button" 
+                                onclick="copyBookmarklet('playerStats')"
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copy Code
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-gray-50 rounded-md">
+                        <p class="text-xs text-gray-600">
+                            <strong>Tip:</strong> Drag the "📊 BGA Player Stats" button above to your bookmarks bar, then click it while viewing any player profile or group page on BoardGameArena.
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('main.import_page') }}" 
+                           class="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                            Import collected data &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 2: Coming Soon -->
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Coming Soon (Phase 2)</h2>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            
+            <!-- GameList Card -->
+            <div class="bg-white shadow rounded-lg p-6 opacity-60">
+                <div class="flex items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-900">Game List</h3>
+                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
+                        Phase 2
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">
+                    Exports the complete list of games available on BGA with IDs, names, display names, status (public/alpha), and premium status.
+                </p>
+                <p class="text-xs text-gray-500 mt-3">
+                    Use on: BGA game browser page
+                </p>
+            </div>
+
+            <!-- MoveStats Card -->
+            <div class="bg-white shadow rounded-lg p-6 opacity-60">
+                <div class="flex items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-900">Move Statistics</h3>
+                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
+                        Phase 2
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">
+                    Extracts move timestamps and player thinking times from game review pages. Useful for analyzing game pace and player response times.
+                </p>
+                <p class="text-xs text-gray-500 mt-3">
+                    Use on: Game review pages (boardgamearena.com/gamereview?table=...)
+                </p>
+            </div>
+
+            <!-- TournamentStats Card -->
+            <div class="bg-white shadow rounded-lg p-6 opacity-60">
+                <div class="flex items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-900">Tournament Stats</h3>
+                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
+                        Phase 2
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">
+                    Collects match timeout information and player remaining times from tournament pages. Helps track tournament progress and time management.
+                </p>
+                <p class="text-xs text-gray-500 mt-3">
+                    Use on: Tournament pages (boardgamearena.com/tournament?id=...)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/tools.js') }}"></script>
+{% endblock %}

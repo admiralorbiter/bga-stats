@@ -360,44 +360,44 @@ curl -X POST http://127.0.0.1:5000/api/import \
 
 ### Tasks
 
-- [ ] Update `frontend/templates/base.html`
-  - [ ] Add navigation bar (Home, Import, Players)
-  - [ ] Add jQuery CDN (or local file)
-  - [ ] Improve styling with Tailwind
-- [ ] Create `frontend/templates/import.html`
-  - [ ] Extends base template
-  - [ ] Import form:
-    - [ ] Textarea for pasting export data (large, multi-line)
-    - [ ] File upload input (optional, Phase 1 can be basic)
-    - [ ] Import type selector (dropdown: Auto-detect, Player Stats, etc.)
-    - [ ] Import button
-  - [ ] Message area (for success/error messages)
-  - [ ] Loading state indicator (hidden by default)
-- [ ] Create `frontend/static/js/import.js`
-  - [ ] Form submission handler
-  - [ ] Collect form data (textarea value or file)
-  - [ ] Show loading state (disable button, show spinner)
-  - [ ] AJAX POST to `/api/import`
-  - [ ] Handle success response:
-    - [ ] Display success message with counts
-    - [ ] Hide loading state
-    - [ ] Optionally redirect to players list
-  - [ ] Handle error response:
-    - [ ] Display error message
-    - [ ] Hide loading state
-    - [ ] Show error details
-- [ ] Update main routes to include import page
-  - [ ] `GET /import` route in `backend/routes/main.py`
-- [ ] Style with Tailwind CSS
-  - [ ] Form styling (centered, max-width, padding)
-  - [ ] Button styling (primary color, hover states)
-  - [ ] Message styling (success: green, error: red)
-  - [ ] Responsive design (mobile-friendly)
-- [ ] Test import UI end-to-end
-  - [ ] Paste sample Player Stats export
-  - [ ] Click Import
-  - [ ] Verify success message appears
-  - [ ] Verify data appears in database
+- [x] Update `frontend/templates/base.html`
+  - [x] Add navigation bar (Home, Import, Players)
+  - [x] Add jQuery CDN (or local file)
+  - [x] Improve styling with Tailwind
+- [x] Create `frontend/templates/import.html`
+  - [x] Extends base template
+  - [x] Import form:
+    - [x] Textarea for pasting export data (large, multi-line)
+    - [x] File upload input (optional, Phase 1 can be basic)
+    - [x] Import type selector (dropdown: Auto-detect, Player Stats, etc.)
+    - [x] Import button
+  - [x] Message area (for success/error messages)
+  - [x] Loading state indicator (hidden by default)
+- [x] Create `frontend/static/js/import.js`
+  - [x] Form submission handler
+  - [x] Collect form data (textarea value or file)
+  - [x] Show loading state (disable button, show spinner)
+  - [x] AJAX POST to `/api/import`
+  - [x] Handle success response:
+    - [x] Display success message with counts
+    - [x] Hide loading state
+    - [x] Optionally redirect to players list
+  - [x] Handle error response:
+    - [x] Display error message
+    - [x] Hide loading state
+    - [x] Show error details
+- [x] Update main routes to include import page
+  - [x] `GET /import` route in `backend/routes/main.py`
+- [x] Style with Tailwind CSS
+  - [x] Form styling (centered, max-width, padding)
+  - [x] Button styling (primary color, hover states)
+  - [x] Message styling (success: green, error: red)
+  - [x] Responsive design (mobile-friendly)
+- [x] Test import UI end-to-end
+  - [x] Paste sample Player Stats export
+  - [x] Click Import
+  - [x] Verify success message appears
+  - [x] Verify data appears in database
 
 ### Deliverables
 
@@ -769,7 +769,8 @@ Update this document as sprints are completed:
 - [x] Sprint 2: Flask App Skeleton - ✅ **Complete**
 - [x] Sprint 3: Player Stats Parser - ✅ **Complete**
 - [x] Sprint 4: Import Service & API - ✅ **Complete**
-- [ ] Sprint 5: Base Frontend & Import UI - [Status]
+- [x] Sprint 5: Base Frontend & Import UI - ✅ **Complete**
+- [ ] Sprint 6: Players List API & UI - [Status]
 - ... (continue for all sprints)
 
 ---

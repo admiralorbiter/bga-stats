@@ -28,11 +28,18 @@
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <a href="{{ url_for('main.index') }}" 
-                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                           class="{% if request.endpoint == 'main.index' %}border-blue-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Home
                         </a>
-                        <!-- Future navigation items -->
-                        {# <a href="{{ url_for('main.import_page') }}" ...>Import</a> #}
+                        <a href="{{ url_for('main.import_page') }}" 
+                           class="{% if request.endpoint == 'main.import_page' %}border-blue-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Import
+                        </a>
+                        <a href="{{ url_for('main.tools_page') }}" 
+                           class="{% if request.endpoint == 'main.tools_page' %}border-blue-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Tools
+                        </a>
+                        {# Future: Players page #}
                         {# <a href="{{ url_for('main.players') }}" ...>Players</a> #}
                     </div>
                 </div>

@@ -17,6 +17,22 @@ def index():
     return render_template('home.html')
 
 
+@main_bp.route('/import')
+def import_page():
+    """
+    Import page - allows users to paste export data from bookmarklets.
+    """
+    return render_template('import.html')
+
+
+@main_bp.route('/tools')
+def tools_page():
+    """
+    Tools page - displays bookmarklets for data collection from BGA.
+    """
+    return render_template('tools.html')
+
+
 @main_bp.route('/health')
 def health():
     """
