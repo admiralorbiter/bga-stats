@@ -841,12 +841,22 @@ curl -X POST http://127.0.0.1:5000/api/import \
 - UI is visually appealing and consistent
 - Error messages are helpful everywhere
 - Code is well-documented
-- User can complete all workflows without confusion
-- Documentation is complete and accurate
+- User can complete import workflow without confusion
 
 ---
 
-## Phase 3: Advanced Features & Usability
+## Future Phase Sprints (Out of Scope for Phase 1)
+
+### Phase 2: Additional Import Types
+
+- **Sprint 10**: Game List Import
+- **Sprint 11**: Game List UI
+- **Sprint 12**: Move Stats Import
+- **Sprint 13**: Match Detail UI
+- **Sprint 14**: Tournament Stats Import
+- **Sprint 15**: Tournament Detail UI
+
+### Phase 3: Quality & Usability
 
 - **Sprint 16**: Search & Filtering (across all data types)
 - **Sprint 17**: Edit/Delete CRUD Operations
@@ -911,23 +921,8 @@ Update this document as sprints are completed:
 - [x] Sprint 3: Player Stats Parser - ✅ **Complete**
 - [x] Sprint 4: Import Service & API - ✅ **Complete**
 - [x] Sprint 5: Base Frontend & Import UI - ✅ **Complete**
-- [x] Sprint 6: Players List API & UI - ✅ **Complete**
-- [x] Sprint 7: Player Detail API & UI - ✅ **Complete**
-
-**Phase 2 (Full Bookmarklet Coverage):**
-- [ ] Sprint 8: Games Browsing (UI + API) - 🟢 **Next**
-- [ ] Sprint 9: Auto-Pull Game List
-- [ ] Sprint 10: Tournaments Browsing (UI + API)
-- [ ] Sprint 11: Auto-Pull Tournament Stats
-- [ ] Sprint 12: Matches & Moves Browsing (UI + API)
-- [ ] Sprint 13: Auto-Pull Move Stats
-
-**Integration & Polish:**
-- [ ] Sprint 14: Integration & Testing (Comprehensive)
-- [ ] Sprint 15: Polish & Refinement (Comprehensive)
-
-**Phase 3 (Advanced Features):**
-- [ ] Sprint 16+: See Phase 3 section above
+- [ ] Sprint 6: Players List API & UI - [Status]
+- ... (continue for all sprints)
 
 ---
 
