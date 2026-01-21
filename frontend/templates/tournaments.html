@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Tournaments - BGA Stats{% endblock %}
+
+{% block content %}
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Tournaments</h1>
+        <p class="mt-2 text-sm text-gray-600">
+            View all imported tournament statistics
+        </p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-600">Loading tournaments...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden">
+        <div class="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error loading tournaments</h3>
+                    <p id="error-message" class="mt-2 text-sm text-red-700"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No tournaments yet</h3>
+        <p class="mt-1 text-sm text-gray-500">Import tournament data to get started.</p>
+        <div class="mt-6">
+            <a href="/import" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Import Tournament Data
+            </a>
+        </div>
+    </div>
+
+    <!-- Tournaments Grid -->
+    <div id="tournaments-grid" class="hidden">
+        <div id="tournaments-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Tournament cards will be inserted here by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/tournaments.js"></script>
+{% endblock %}

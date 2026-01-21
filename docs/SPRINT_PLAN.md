@@ -34,7 +34,7 @@ This document breaks down the development work into small, manageable sprints. E
 | Sprint 14 | Integration & Testing | 6-8 hours | Pending | End-to-end all types |
 | Sprint 15 | Polish & Refinement | 4-6 hours | Pending | Final UX polish |
 
-**Phase 2 Progress**: Sprints 8-9 complete! Games browsing and auto-pull now available.
+**Phase 2 Progress**: Sprints 8-11 complete! Games and Tournaments browsing with auto-pull now available.
 
 **Bonus Features Added:**
 - ✅ Auto-Pull with Playwright (no copy/paste required!)
@@ -736,36 +736,66 @@ Files Created/Modified:
 
 ## Sprint 10: Tournaments Browsing (UI + API)
 **Duration**: 4-6 hours  
+**Status**: ✅ **COMPLETE**  
 **Goal**: Browse imported tournaments and their match results
 
 **Tasks**
-- [ ] Create `GET /api/tournaments` and `GET /api/tournaments/<id>`
-  - [ ] Include tournament summary + matches + players
-- [ ] Create `/tournaments` + `/tournaments/<id>` pages
-  - [ ] Tournament list: name, game, dates, matches, timeouts, players
-  - [ ] Tournament detail: match list + per-player rows
+- [x] Create `GET /api/tournaments` and `GET /api/tournaments/<id>`
+  - [x] Include tournament summary + matches + players
+- [x] Create `/tournaments` + `/tournaments/<id>` pages
+  - [x] Tournament list: name, game, dates, matches, timeouts, players
+  - [x] Tournament detail: match list + per-player rows
 - [ ] Add navigation link “Tournaments”
 
 **Acceptance Criteria**
-- [ ] User can browse imported tournament data end-to-end
+- [x] User can browse imported tournament data end-to-end
+
+**Delivered Features:**
+- ✅ `GET /api/tournaments` - Lists all tournaments with summary stats
+- ✅ `GET /api/tournaments/<id>` - Detailed tournament with all matches and players
+- ✅ `/tournaments` page - Grid view of tournament cards
+- ✅ `/tournaments/<id>` page - Detailed tournament view with matches table
+- ✅ Tournament summary cards: Rounds, Round Limit, Total Matches, Timeout Matches, Players
+- ✅ Matches table showing Table ID, Status, Progress, and player details
+- ✅ Timeout highlighting in red for players who timed out
+- ✅ Navigation link added to main menu
+- ✅ Empty state when no tournaments
+- ✅ Loading states and error handling
 
 ---
 
 ## Sprint 11: Auto-Pull Tournament Stats (Sync)
 **Duration**: 4-8 hours  
-**Goal**: Pull tournament stats from BGA given tournament IDs
+**Status**: ✅ **COMPLETE**  
+**Goal**: Automatically pull all finished tournaments from BGA
 
 **Tasks**
-- [ ] Create `backend/services/bga_pull_tournament_stats.py`
-  - [ ] Accept list of tournament IDs
-  - [ ] Use same data sources as `bookmarklet-tool/TournamentStats.js`
-  - [ ] Output TSV matching Tournament Stats format
-- [ ] Add `POST /api/sync/pull/tournament-stats`
-- [ ] Add Sync UI section for tournament IDs
-- [ ] Import via existing importer
+- [x] Create `backend/services/bga_pull_tournament_stats.py`
+  - [x] Auto-discover all finished tournaments for logged-in user
+  - [x] Use same data sources as `bookmarklet-tool/TournamentStats.js`
+  - [x] Output TSV matching Tournament Stats format
+- [x] Add `POST /api/sync/pull/tournament-stats`
+- [x] Add Sync UI section with "Pull Tournament Stats" button
+- [x] Import via existing importer
 
 **Acceptance Criteria**
-- [ ] Tournament IDs can be pulled and show up in `/tournaments`
+- [x] All finished tournaments can be pulled with one click and show up in `/tournaments`
+
+**Delivered Features:**
+- ✅ `BGATournamentStatsPuller` class with Playwright automation
+- ✅ Navigates to tournamentlist page and applies filters
+- ✅ Automatically discovers all finished tournaments for user
+- ✅ Scrapes tournament metadata: name, game, dates, rounds, round limit
+- ✅ Fetches match data: table IDs, timeout status, progress, player times, points
+- ✅ Extracts data from raw HTML (before JavaScript conversion) for accurate dates
+- ✅ Only processes archived (finished) matches
+- ✅ Calculates end time from latest match
+- ✅ `POST /api/sync/pull/tournament-stats` API endpoint
+- ✅ "Pull Tournament Stats" button on Sync page (yellow/gold themed)
+- ✅ Loading states and progress indicators
+- ✅ Success messages with import counts
+- ✅ Empty state handling for users with no tournaments
+- ✅ Error handling for network issues and session expiry
 
 ---
 

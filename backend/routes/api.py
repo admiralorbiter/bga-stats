@@ -5,7 +5,10 @@ Provides REST endpoints for data import and retrieval.
 
 from flask import Blueprint, request, jsonify
 from backend.services.import_service import import_data
-from backend.models import Player, PlayerGameStat, Game
+from backend.models import (
+    Player, PlayerGameStat, Game,
+    Tournament, TournamentMatch, TournamentMatchPlayer
+)
 from backend.db import get_session
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -380,6 +383,90 @@ def sync_pull_game_list():
         }), 500
 
 
+@api_bp.route('/sync/pull/tournament-stats', methods=['POST'])
+def sync_pull_tournament_stats():
+    """
+    Pull all tournament statistics from BGA using Playwright.
+    
+    Returns:
+        JSON response with import results
+    """
+    from backend.services.bga_session_service import get_session_service
+    from backend.services.bga_pull_tournament_stats import BGATournamentStatsPuller
+    from backend.services.import_service import import_data
+    
+    try:
+        # Get session
+        session_service = get_session_service()
+        
+        if not session_service.has_saved_session():
+            return jsonify({
+                'success': False,
+                'error': 'No saved session. Please log in first.'
+            }), 401
+        
+        # Create browser context from saved session
+        browser = session_service.create_browser(headless=True)
+        context = session_service.create_context_from_saved_session()
+        
+        if not context:
+            browser.close()
+            return jsonify({
+                'success': False,
+                'error': 'Failed to load session. Please log in again.'
+            }), 401
+        
+        try:
+            # Create puller and pull all tournaments
+            puller = BGATournamentStatsPuller(context)
+            tsv_data = puller.pull_all_tournaments()
+            
+            if tsv_data is None:
+                browser.close()
+                return jsonify({
+                    'success': False,
+                    'error': 'Failed to pull tournament data from BGA'
+                }), 500
+            
+            if not tsv_data.strip():
+                # No tournaments found - this is valid
+                browser.close()
+                return jsonify({
+                    'success': True,
+                    'message': 'No tournaments found',
+                    'results': {
+                        'tournaments_processed': 0
+                    }
+                })
+            
+            # Import the data
+            import_result = import_data(tsv_data, import_type='tournament_stats')
+            
+            if not import_result['success']:
+                browser.close()
+                return jsonify({
+                    'success': False,
+                    'error': import_result.get('error', 'Import failed')
+                }), 500
+            
+            browser.close()
+            
+            return jsonify({
+                'success': True,
+                'results': import_result.get('results', {})
+            })
+            
+        except Exception as e:
+            browser.close()
+            raise e
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @api_bp.route('/players', methods=['GET'])
 def get_players():
     """
@@ -608,6 +695,145 @@ def get_game_detail(game_id):
         return jsonify({
             'success': True,
             'game': game_data
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        session.close()
+
+
+@api_bp.route('/tournaments', methods=['GET'])
+def get_tournaments():
+    """
+    Get all tournaments with optional filtering.
+    
+    Query params:
+        game_name (str, optional): Filter by game name
+        search (str, optional): Search by tournament name
+    
+    Returns:
+        JSON array of tournaments with match summaries
+    """
+    try:
+        session = get_session()
+        query = session.query(Tournament)
+        
+        # Apply filters
+        game_name = request.args.get('game_name')
+        if game_name:
+            query = query.filter(Tournament.game_name == game_name)
+        
+        search = request.args.get('search')
+        if search:
+            search_pattern = f'%{search}%'
+            query = query.filter(Tournament.name.like(search_pattern))
+        
+        # Order by most recent first
+        tournaments = query.order_by(Tournament.start_time.desc()).all()
+        
+        tournaments_data = []
+        for tournament in tournaments:
+            tournaments_data.append({
+                'id': tournament.id,
+                'bga_tournament_id': tournament.bga_tournament_id,
+                'name': tournament.name,
+                'game_name': tournament.game_name,
+                'start_time': tournament.start_time,
+                'end_time': tournament.end_time,
+                'rounds': tournament.rounds,
+                'round_limit': tournament.round_limit,
+                'total_matches': tournament.total_matches,
+                'timeout_matches': tournament.timeout_matches,
+                'player_count': tournament.player_count,
+                'timeout_percentage': round((tournament.timeout_matches / tournament.total_matches * 100) if tournament.total_matches > 0 else 0, 1),
+                'url': f'/tournaments/{tournament.id}'
+            })
+        
+        return jsonify({
+            'success': True,
+            'tournaments': tournaments_data,
+            'count': len(tournaments_data)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        session.close()
+
+
+@api_bp.route('/tournaments/<int:tournament_id>', methods=['GET'])
+def get_tournament_detail(tournament_id):
+    """
+    Get detailed tournament information including matches and players.
+    
+    Returns:
+        JSON with tournament details, matches, and player stats
+    """
+    try:
+        session = get_session()
+        tournament = session.query(Tournament).filter(Tournament.id == tournament_id).first()
+        
+        if not tournament:
+            return jsonify({
+                'success': False,
+                'error': 'Tournament not found'
+            }), 404
+        
+        # Get all matches with their players
+        matches = session.query(TournamentMatch)\
+            .filter(TournamentMatch.tournament_id == tournament_id)\
+            .order_by(TournamentMatch.id)\
+            .all()
+        
+        matches_data = []
+        for match in matches:
+            # Get players for this match
+            players = session.query(TournamentMatchPlayer)\
+                .filter(TournamentMatchPlayer.tournament_match_id == match.id)\
+                .all()
+            
+            players_data = []
+            for player in players:
+                players_data.append({
+                    'name': player.player_name,
+                    'remaining_time_seconds': player.remaining_time_seconds,
+                    'remaining_time_hours': round(player.remaining_time_seconds / 3600, 1) if player.remaining_time_seconds else None,
+                    'points': player.points,
+                    'timed_out': player.remaining_time_seconds < 0 if player.remaining_time_seconds is not None else False
+                })
+            
+            matches_data.append({
+                'id': match.id,
+                'bga_table_id': match.bga_table_id,
+                'is_timeout': match.is_timeout,
+                'progress': match.progress,
+                'players': players_data
+            })
+        
+        tournament_data = {
+            'id': tournament.id,
+            'bga_tournament_id': tournament.bga_tournament_id,
+            'name': tournament.name,
+            'game_name': tournament.game_name,
+            'start_time': tournament.start_time,
+            'end_time': tournament.end_time,
+            'rounds': tournament.rounds,
+            'round_limit': tournament.round_limit,
+            'total_matches': tournament.total_matches,
+            'timeout_matches': tournament.timeout_matches,
+            'player_count': tournament.player_count,
+            'timeout_percentage': round((tournament.timeout_matches / tournament.total_matches * 100) if tournament.total_matches > 0 else 0, 1),
+            'matches': matches_data
+        }
+        
+        return jsonify({
+            'success': True,
+            'tournament': tournament_data
         })
     except Exception as e:
         return jsonify({

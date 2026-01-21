@@ -141,6 +141,35 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Tournament Stats Pull Section -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-md font-medium text-gray-900 mb-3">Tournament Statistics</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Pull all your finished tournament data from BGA.
+                    <span class="text-xs text-gray-500">(Includes matches and player times)</span>
+                </p>
+                
+                <button type="button" id="pull-tournament-stats-btn"
+                        class="inline-flex items-center px-6 py-3 border-2 border-yellow-700 text-base font-medium rounded-md shadow-lg text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                    <span id="pull-tournament-stats-text">🏆 Pull Tournament Stats</span>
+                    <svg id="pull-tournament-stats-spinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+                
+                <!-- Progress indicator -->
+                <div id="tournament-stats-progress" class="hidden mt-3 text-sm text-yellow-700">
+                    <div class="flex items-center">
+                        <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Fetching tournament data from BGA...</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

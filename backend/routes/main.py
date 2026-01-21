@@ -65,6 +65,18 @@ def game_detail(game_id):
     return render_template('game_detail.html', game_id=game_id)
 
 
+@main_bp.route('/tournaments')
+def tournaments():
+    """Tournaments list page."""
+    return render_template('tournaments.html')
+
+
+@main_bp.route('/tournaments/<int:tournament_id>')
+def tournament_detail(tournament_id):
+    """Tournament detail page."""
+    return render_template('tournament_detail.html', tournament_id=tournament_id)
+
+
 @main_bp.route('/health')
 def health():
     """

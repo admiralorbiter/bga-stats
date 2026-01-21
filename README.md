@@ -221,9 +221,12 @@ The project is being developed in phases:
   - ✅ Players list and detail views
   - ✅ Session management with Playwright
   - ✅ Modern UI with Tailwind CSS
-- **Phase 2** (In Progress): Additional import types
-  - Game List, Move Stats, Tournaments parsers (✅ Complete)
-  - Auto-pull for other data types (Planned)
+- **Phase 2** (✅ Complete): Additional import types
+  - ✅ Game List, Move Stats, Tournaments parsers
+  - ✅ Games browsing (list and detail views)
+  - ✅ Tournaments browsing (list and detail views)
+  - ✅ Auto-pull for Game List
+  - ✅ Auto-pull for Tournament Stats
 - **Phase 3** (Planned): Advanced features
   - Search, filtering, sorting
   - Data export and analytics
@@ -302,14 +305,17 @@ This is currently a personal project. For questions or suggestions, please open 
 ## Current Status
 
 **Completed Features:**
-- ✅ Sprints 0-7: Full player stats workflow (auto-pull, import, view)
+- ✅ Sprints 0-11: Full workflow for Players, Games, and Tournaments
 - ✅ Database models for all data types (players, games, stats, matches, tournaments)
 - ✅ Parsers for all bookmarklet formats
 - ✅ Players list and detail pages with win rate analytics
+- ✅ Games list and detail pages with filtering
+- ✅ Tournaments list and detail pages with match data
+- ✅ Auto-pull for Player Stats, Game List, and Tournament Stats
 - ✅ Session management with automatic player ID detection
 
 **Next Up:**
-- Sprint 8+: Auto-pull for Game List, Move Stats, Tournaments
+- Sprint 12+: Matches & Moves browsing and auto-pull
 - Advanced filtering and search
 - Data analytics and visualizations
 

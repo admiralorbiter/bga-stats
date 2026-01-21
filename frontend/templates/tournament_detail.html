@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Tournament Details - BGA Stats{% endblock %}
+
+{% block content %}
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-600">Loading tournament details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden">
+        <div class="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error loading tournament</h3>
+                    <p id="error-message" class="mt-2 text-sm text-red-700"></p>
+                </div>
+            </div>
+        </div>
+        <a href="/tournaments" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            ← Back to Tournaments
+        </a>
+    </div>
+
+    <!-- Tournament Details -->
+    <div id="tournament-content" class="hidden">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 id="tournament-name" class="text-3xl font-bold text-gray-900"></h1>
+                    <p id="tournament-game" class="mt-2 text-lg text-gray-600"></p>
+                    <p id="tournament-dates" class="mt-1 text-sm text-gray-500"></p>
+                </div>
+                <a href="/tournaments" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    ← Back to Tournaments
+                </a>
+            </div>
+        </div>
+
+        <!-- Summary Stats Cards -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Tournament Summary</h2>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Rounds</dt>
+                        <dd id="stat-rounds" class="mt-1 text-3xl font-semibold text-blue-600">-</dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Round Limit</dt>
+                        <dd id="stat-round-limit" class="mt-1 text-3xl font-semibold text-purple-600">-</dd>
+                        <p class="mt-1 text-xs text-gray-500">hours</p>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Matches</dt>
+                        <dd id="stat-matches" class="mt-1 text-3xl font-semibold text-green-600">-</dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Timeout Matches</dt>
+                        <dd id="stat-timeouts" class="mt-1 text-3xl font-semibold text-red-600">-</dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Players</dt>
+                        <dd id="stat-players" class="mt-1 text-3xl font-semibold text-yellow-600">-</dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matches Table -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Matches</h2>
+            <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Table ID
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Progress
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Players
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="matches-tbody" class="bg-white divide-y divide-gray-200">
+                        <!-- Matches will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOURNAMENT_ID = {{ tournament_id }};
+</script>
+<script src="/static/js/tournament_detail.js"></script>
+{% endblock %}

@@ -34,6 +34,11 @@ $(document).ready(function() {
     const $pullGameListSpinner = $('#pull-game-list-spinner');
     const $gameListProgress = $('#game-list-progress');
     
+    const $pullTournamentStatsBtn = $('#pull-tournament-stats-btn');
+    const $pullTournamentStatsText = $('#pull-tournament-stats-text');
+    const $pullTournamentStatsSpinner = $('#pull-tournament-stats-spinner');
+    const $tournamentStatsProgress = $('#tournament-stats-progress');
+    
     let currentPlayerId = null;
 
     // Check session status on load
@@ -82,6 +87,11 @@ $(document).ready(function() {
     // Pull game list button
     $pullGameListBtn.on('click', function() {
         pullGameList();
+    });
+
+    // Pull tournament stats button
+    $pullTournamentStatsBtn.on('click', function() {
+        handlePullTournamentStats();
     });
 
     function checkSessionStatus() {
@@ -412,6 +422,62 @@ $(document).ready(function() {
         } else {
             $pullGameListText.text('🎲 Pull Game List');
             $pullGameListSpinner.addClass('hidden');
+        }
+    }
+
+    function handlePullTournamentStats() {
+        setPullTournamentStatsLoading(true);
+        showProgress('Pulling tournament statistics...');
+        
+        $.ajax({
+            url: '/api/sync/pull/tournament-stats',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function(response) {
+                setPullTournamentStatsLoading(false);
+                completeProgress();
+                
+                setTimeout(function() {
+                    hideProgress();
+                    
+                    if (response.success) {
+                        const results = response.results || {};
+                        
+                        if (results.tournaments_processed === 0) {
+                            showSuccess('No tournaments found. Try participating in a tournament first!');
+                        } else {
+                            let msg = `Successfully pulled and imported tournament data!\n`;
+                            msg += `Tournaments: ${results.tournaments_created || 0} created, ${results.tournaments_updated || 0} updated\n`;
+                            msg += `Matches: ${results.matches_created || 0} created\n`;
+                            msg += `Players: ${results.match_players_created || 0} player records`;
+                            showSuccess(msg);
+                        }
+                    } else {
+                        showError(response.error || 'Pull failed');
+                    }
+                }, 500);
+            },
+            error: function(xhr) {
+                setPullTournamentStatsLoading(false);
+                hideProgress();
+                const errorMsg = xhr.responseJSON?.error || 'Pull request failed';
+                showError(errorMsg);
+            }
+        });
+    }
+
+    function setPullTournamentStatsLoading(isLoading) {
+        if (isLoading) {
+            $pullTournamentStatsBtn.prop('disabled', true);
+            $pullTournamentStatsText.text('Pulling...');
+            $pullTournamentStatsSpinner.removeClass('hidden');
+            $tournamentStatsProgress.removeClass('hidden').show();
+        } else {
+            $pullTournamentStatsBtn.prop('disabled', false);
+            $pullTournamentStatsText.html('🏆 Pull Tournament Stats');
+            $pullTournamentStatsSpinner.addClass('hidden');
+            $tournamentStatsProgress.hide();
         }
     }
 });
