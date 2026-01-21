@@ -335,14 +335,25 @@ class BGASessionService:
     
     def cleanup(self):
         """Clean up browser resources."""
+        # Playwright objects are not thread-safe; ensure we always tear them down
+        # between requests and never raise during cleanup (best-effort).
         if self.context:
-            self.context.close()
+            try:
+                self.context.close()
+            except Exception:
+                pass
             self.context = None
         if self.browser:
-            self.browser.close()
+            try:
+                self.browser.close()
+            except Exception:
+                pass
             self.browser = None
         if self.playwright:
-            self.playwright.stop()
+            try:
+                self.playwright.stop()
+            except Exception:
+                pass
             self.playwright = None
     
     def _extract_player_id(self, page):

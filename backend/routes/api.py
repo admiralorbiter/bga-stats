@@ -392,7 +392,13 @@ def sync_pull_tournament_stats():
     Returns:
         JSON response with import results
     """
-    from backend.services.bga_session_service import get_session_service
+    try:
+        from backend.services.bga_session_service import get_session_service
+    except ImportError:
+        return jsonify({
+            'success': False,
+            'error': 'Playwright not installed. Please install it: pip install playwright && python -m playwright install chromium, or use manual import at /import'
+        }), 503
     from backend.services.bga_pull_tournament_stats import BGATournamentStatsPuller
     from backend.services.import_service import import_data
     
@@ -466,6 +472,12 @@ def sync_pull_tournament_stats():
             'success': False,
             'error': str(e)
         }), 500
+    finally:
+        # Critical: prevent reusing Playwright objects across Flask request threads.
+        try:
+            session_service.cleanup()
+        except Exception:
+            pass
 
 
 @api_bp.route('/sync/pull/move-stats', methods=['POST'])
@@ -481,7 +493,13 @@ def sync_pull_move_stats():
     Returns:
         JSON response with import results
     """
-    from backend.services.bga_session_service import get_session_service
+    try:
+        from backend.services.bga_session_service import get_session_service
+    except ImportError:
+        return jsonify({
+            'success': False,
+            'error': 'Playwright not installed. Please install it: pip install playwright && python -m playwright install chromium, or use manual import at /import'
+        }), 503
     from backend.services.bga_pull_move_stats import BGAMoveStatsPuller
     from backend.services.import_service import import_data
     
@@ -622,6 +640,12 @@ def sync_pull_move_stats():
             'success': False,
             'error': str(e)
         }), 500
+    finally:
+        # Critical: prevent reusing Playwright objects across Flask request threads.
+        try:
+            session_service.cleanup()
+        except Exception:
+            pass
 
 
 @api_bp.route('/players', methods=['GET'])
