@@ -7,7 +7,8 @@ from flask import Blueprint, request, jsonify
 from backend.services.import_service import import_data
 from backend.models import (
     Player, PlayerGameStat, Game,
-    Tournament, TournamentMatch, TournamentMatchPlayer
+    Tournament, TournamentMatch, TournamentMatchPlayer,
+    Match, MatchMove
 )
 from backend.db import get_session
 
@@ -467,6 +468,162 @@ def sync_pull_tournament_stats():
         }), 500
 
 
+@api_bp.route('/sync/pull/move-stats', methods=['POST'])
+def sync_pull_move_stats():
+    """
+    Pull move statistics from BGA using Playwright.
+    
+    Expects JSON:
+        {"table_ids": "12345,67890"} - Manual table IDs
+        OR
+        {"auto_discover": true, "limit": 50} - Auto-discover recent matches
+    
+    Returns:
+        JSON response with import results
+    """
+    from backend.services.bga_session_service import get_session_service
+    from backend.services.bga_pull_move_stats import BGAMoveStatsPuller
+    from backend.services.import_service import import_data
+    
+    try:
+        # Validate request
+        if not request.is_json:
+            return jsonify({
+                'success': False,
+                'error': 'Content-Type must be application/json'
+            }), 400
+        
+        data = request.get_json()
+        
+        # Get session
+        session_service = get_session_service()
+        
+        if not session_service.has_saved_session():
+            return jsonify({
+                'success': False,
+                'error': 'No saved session. Please log in first.'
+            }), 401
+        
+        # Create browser context from saved session
+        browser = session_service.create_browser(headless=True)
+        context = session_service.create_context_from_saved_session()
+        
+        if not context:
+            browser.close()
+            return jsonify({
+                'success': False,
+                'error': 'Failed to load session. Please log in again.'
+            }), 401
+        
+        try:
+            puller = BGAMoveStatsPuller(context)
+            
+            # Determine mode: manual or auto-discover
+            if data.get('auto_discover'):
+                # Auto-discover mode
+                limit = data.get('limit', 50)
+                print(f"Auto-discovering recent matches (limit: {limit})")
+                
+                table_ids = puller.discover_recent_matches(limit=limit)
+                
+                if not table_ids:
+                    context.close()
+                    browser.close()
+                    return jsonify({
+                        'success': False,
+                        'error': 'No recent matches found'
+                    }), 404
+                
+                print(f"Found {len(table_ids)} matches to pull")
+                tsv_data = puller.pull_multiple_matches(table_ids)
+            else:
+                # Manual mode
+                table_ids_input = data.get('table_ids', '').strip()
+                
+                if not table_ids_input:
+                    context.close()
+                    browser.close()
+                    return jsonify({
+                        'success': False,
+                        'error': 'Missing required field: table_ids'
+                    }), 400
+                
+                # Parse comma-separated table IDs
+                table_ids = [tid.strip() for tid in table_ids_input.split(',') if tid.strip()]
+                
+                if not table_ids:
+                    context.close()
+                    browser.close()
+                    return jsonify({
+                        'success': False,
+                        'error': 'No valid table IDs provided'
+                    }), 400
+                
+                print(f"Pulling {len(table_ids)} matches manually specified")
+                tsv_data = puller.pull_multiple_matches(table_ids)
+            
+            # Close browser before import (can take time)
+            context.close()
+            browser.close()
+            
+            if not tsv_data:
+                return jsonify({
+                    'success': False,
+                    'error': 'Failed to pull move stats'
+                }), 500
+            
+            # Import the data - split by match and import each separately
+            # The TSV data contains multiple matches, each with the same table_id
+            # We need to split by table_id and import each match individually
+            lines = tsv_data.strip().split('\n')
+            
+            # Group lines by table_id
+            matches_by_table = {}
+            for line in lines:
+                if not line.strip():
+                    continue
+                table_id = line.split(';')[0].strip()
+                if table_id not in matches_by_table:
+                    matches_by_table[table_id] = []
+                matches_by_table[table_id].append(line)
+            
+            # Import each match
+            total_matches_created = 0
+            total_matches_updated = 0
+            total_moves_created = 0
+            
+            for table_id, match_lines in matches_by_table.items():
+                match_tsv = '\n'.join(match_lines)
+                import_result = import_data(match_tsv, import_type='move_stats')
+                
+                if import_result.get('success'):
+                    results = import_result.get('results', {})
+                    total_matches_created += results.get('matches_created', 0)
+                    total_matches_updated += results.get('matches_updated', 0)
+                    total_moves_created += results.get('moves_created', 0)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Move stats imported successfully',
+                'result': {
+                    'matches_created': total_matches_created,
+                    'matches_updated': total_matches_updated,
+                    'moves_created': total_moves_created
+                }
+            })
+        
+        except Exception as e:
+            context.close()
+            browser.close()
+            raise e
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @api_bp.route('/players', methods=['GET'])
 def get_players():
     """
@@ -834,6 +991,270 @@ def get_tournament_detail(tournament_id):
         return jsonify({
             'success': True,
             'tournament': tournament_data
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        session.close()
+
+
+@api_bp.route('/matches', methods=['GET'])
+def get_matches():
+    """
+    Get all matches with optional filtering.
+    
+    Query params:
+        game_name (str): Filter by game name (partial match)
+        player_name (str): Filter by player name (in any move)
+        date_from (str): Filter imported_at >= date (ISO format)
+        date_to (str): Filter imported_at <= date (ISO format)
+        min_moves (int): Minimum move count
+        max_moves (int): Maximum move count
+    
+    Returns:
+        JSON with matches array containing match summaries and statistics
+    """
+    from sqlalchemy import func
+    from datetime import datetime
+    
+    try:
+        session = get_session()
+        
+        # Start with base query joining Match and MatchMove
+        query = session.query(
+            Match.id,
+            Match.bga_table_id,
+            Match.game_name,
+            Match.imported_at,
+            func.count(MatchMove.id).label('move_count')
+        ).outerjoin(MatchMove, Match.id == MatchMove.match_id)\
+         .group_by(Match.id, Match.bga_table_id, Match.game_name, Match.imported_at)
+        
+        # Apply game name filter
+        game_name = request.args.get('game_name')
+        if game_name:
+            query = query.filter(Match.game_name.like(f'%{game_name}%'))
+        
+        # Apply player name filter (requires subquery)
+        player_name = request.args.get('player_name')
+        if player_name:
+            player_subquery = session.query(MatchMove.match_id)\
+                .filter(MatchMove.player_name.like(f'%{player_name}%'))\
+                .distinct().subquery()
+            query = query.filter(Match.id.in_(session.query(player_subquery.c.match_id)))
+        
+        # Apply date filters
+        date_from = request.args.get('date_from')
+        if date_from:
+            try:
+                date_from_obj = datetime.fromisoformat(date_from)
+                query = query.filter(Match.imported_at >= date_from_obj)
+            except ValueError:
+                pass  # Ignore invalid date format
+        
+        date_to = request.args.get('date_to')
+        if date_to:
+            try:
+                date_to_obj = datetime.fromisoformat(date_to)
+                query = query.filter(Match.imported_at <= date_to_obj)
+            except ValueError:
+                pass  # Ignore invalid date format
+        
+        # Execute query
+        results = query.order_by(Match.imported_at.desc()).all()
+        
+        # Build response with additional data
+        matches_data = []
+        for result in results:
+            match_id, bga_table_id, game_name, imported_at, move_count = result
+            
+            # Apply move count filters
+            min_moves = request.args.get('min_moves')
+            if min_moves and move_count < int(min_moves):
+                continue
+            
+            max_moves = request.args.get('max_moves')
+            if max_moves and move_count > int(max_moves):
+                continue
+            
+            # Get player names and time info
+            moves = session.query(MatchMove)\
+                .filter(MatchMove.match_id == match_id)\
+                .order_by(MatchMove.id)\
+                .all()
+            
+            player_names = list(set(move.player_name for move in moves))
+            
+            # Calculate duration from first and last move
+            first_move_time = None
+            last_move_time = None
+            duration_minutes = None
+            
+            if moves:
+                first_move_time = moves[0].datetime_local
+                last_move_time = moves[-1].datetime_local
+                
+                # Try to parse and calculate duration
+                try:
+                    # Parse datetime strings (format varies by locale)
+                    first_dt = datetime.strptime(first_move_time, '%m/%d/%Y, %I:%M:%S %p')
+                    last_dt = datetime.strptime(last_move_time, '%m/%d/%Y, %I:%M:%S %p')
+                    duration = last_dt - first_dt
+                    duration_minutes = int(duration.total_seconds() / 60)
+                except:
+                    try:
+                        # Try alternative format
+                        first_dt = datetime.strptime(first_move_time, '%d/%m/%Y, %H:%M:%S')
+                        last_dt = datetime.strptime(last_move_time, '%d/%m/%Y, %H:%M:%S')
+                        duration = last_dt - first_dt
+                        duration_minutes = int(duration.total_seconds() / 60)
+                    except:
+                        pass  # Leave as None if can't parse
+            
+            matches_data.append({
+                'id': match_id,
+                'bga_table_id': bga_table_id,
+                'game_name': game_name,
+                'imported_at': imported_at.isoformat() if imported_at else None,
+                'move_count': move_count,
+                'player_names': player_names,
+                'first_move_time': first_move_time,
+                'last_move_time': last_move_time,
+                'duration_minutes': duration_minutes,
+                'url': f'/matches/{bga_table_id}'
+            })
+        
+        return jsonify({
+            'success': True,
+            'matches': matches_data,
+            'count': len(matches_data)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        session.close()
+
+
+@api_bp.route('/matches/<int:bga_table_id>', methods=['GET'])
+def get_match_detail(bga_table_id):
+    """
+    Get detailed match information with full move timeline.
+    
+    Args:
+        bga_table_id: BGA table ID
+    
+    Returns:
+        JSON with match details, moves, and statistics
+    """
+    from datetime import datetime
+    
+    try:
+        session = get_session()
+        
+        # Get match by bga_table_id
+        match = session.query(Match).filter(Match.bga_table_id == bga_table_id).first()
+        
+        if not match:
+            return jsonify({
+                'success': False,
+                'error': 'Match not found'
+            }), 404
+        
+        # Get all moves ordered by id (insertion order)
+        moves = session.query(MatchMove)\
+            .filter(MatchMove.match_id == match.id)\
+            .order_by(MatchMove.id)\
+            .all()
+        
+        # Build moves array
+        moves_data = []
+        for move in moves:
+            moves_data.append({
+                'move_no': move.move_no,
+                'player_name': move.player_name,
+                'datetime_local': move.datetime_local,
+                'datetime_excel': move.datetime_excel,
+                'remaining_time': move.remaining_time
+            })
+        
+        # Calculate statistics
+        player_names = list(set(move.player_name for move in moves))
+        total_moves = len(moves)
+        player_count = len(player_names)
+        
+        # Calculate moves per player
+        moves_per_player = {}
+        for player in player_names:
+            moves_per_player[player] = sum(1 for m in moves if m.player_name == player)
+        
+        # Calculate duration
+        first_move_time = None
+        last_move_time = None
+        duration_minutes = None
+        avg_time_per_move_seconds = None
+        
+        if moves:
+            first_move_time = moves[0].datetime_local
+            last_move_time = moves[-1].datetime_local
+            
+            # Try to parse and calculate duration
+            try:
+                # Try multiple datetime formats
+                formats = [
+                    '%m/%d/%Y, %I:%M:%S %p',
+                    '%d/%m/%Y, %H:%M:%S',
+                    '%Y-%m-%d %H:%M:%S',
+                    '%m/%d/%Y %I:%M:%S %p'
+                ]
+                
+                first_dt = None
+                last_dt = None
+                
+                for fmt in formats:
+                    try:
+                        first_dt = datetime.strptime(first_move_time, fmt)
+                        last_dt = datetime.strptime(last_move_time, fmt)
+                        break
+                    except:
+                        continue
+                
+                if first_dt and last_dt:
+                    duration = last_dt - first_dt
+                    duration_minutes = int(duration.total_seconds() / 60)
+                    if total_moves > 1:
+                        avg_time_per_move_seconds = int(duration.total_seconds() / (total_moves - 1))
+            except:
+                pass  # Leave as None if can't parse
+        
+        statistics = {
+            'total_moves': total_moves,
+            'player_count': player_count,
+            'player_names': player_names,
+            'duration_minutes': duration_minutes,
+            'first_move_time': first_move_time,
+            'last_move_time': last_move_time,
+            'moves_per_player': moves_per_player,
+            'avg_time_per_move_seconds': avg_time_per_move_seconds
+        }
+        
+        match_data = {
+            'id': match.id,
+            'bga_table_id': match.bga_table_id,
+            'game_name': match.game_name,
+            'imported_at': match.imported_at.isoformat() if match.imported_at else None
+        }
+        
+        return jsonify({
+            'success': True,
+            'match': match_data,
+            'moves': moves_data,
+            'statistics': statistics
         })
     except Exception as e:
         return jsonify({

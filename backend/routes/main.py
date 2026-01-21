@@ -77,6 +77,18 @@ def tournament_detail(tournament_id):
     return render_template('tournament_detail.html', tournament_id=tournament_id)
 
 
+@main_bp.route('/matches')
+def matches():
+    """Matches list page."""
+    return render_template('matches.html')
+
+
+@main_bp.route('/matches/<int:bga_table_id>')
+def match_detail(bga_table_id):
+    """Match detail page with move timeline."""
+    return render_template('match_detail.html', bga_table_id=bga_table_id)
+
+
 @main_bp.route('/health')
 def health():
     """

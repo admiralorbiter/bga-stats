@@ -214,7 +214,65 @@ flask db migrate -m "Description"
 flask db upgrade
 ```
 
-## Import Workflow
+## Data Collection Methods
+
+BGA Stats supports two methods for collecting data from BoardGameArena:
+
+1. **Auto-Pull (Recommended)** - Automated data collection using Playwright
+2. **Manual Import** - Copy/paste from bookmarklets (fallback method)
+
+---
+
+## Auto-Pull Workflow (Playwright)
+
+**Available for**: Player Stats, Game List, Tournament Stats, Move Stats
+
+### Step 1: Login to BGA
+
+1. **Navigate to Sync page**: `http://127.0.0.1:5000/sync`
+2. **Click "🔐 Login to BGA"** button
+3. **Browser window opens** - log into BoardGameArena
+4. **Close browser** when logged in
+5. **Session saved** - you'll see "Logged in to BGA" status
+
+### Step 2: Pull Data
+
+Choose what to pull:
+
+**Player Stats** (Blue Button):
+- Input player IDs (one per line) or group ID
+- Click "📊 Pull Player Stats"
+- Automatically navigates to each player profile and extracts data
+
+**Game List** (Purple Button):
+- Click "🎲 Pull Game List"
+- Pulls complete BGA game catalog (~400+ games)
+
+**Tournament Stats** (Green Button):
+- Select "All tournaments for logged-in user" OR enter specific IDs
+- Click "🏆 Pull Tournament Stats"
+- Extracts tournament details, rounds, matches, and players
+
+**Move Stats** (Indigo/Purple Button):
+- Choose mode:
+  - **Manual**: Enter table IDs (one per line)
+  - **Auto-Discover**: Finds recent completed matches from tournaments
+- Click "📊 Pull Move Stats"
+- Extracts full move timeline for each match
+
+### Step 3: View Imported Data
+
+After successful pull, navigate to:
+- **Players**: `/players` - Browse all players and their game stats
+- **Games**: `/games` - Browse game catalog
+- **Tournaments**: `/tournaments` - View tournament results
+- **Matches**: `/matches` - View match timelines with charts
+
+---
+
+## Manual Import Workflow (Bookmarklets)
+
+Use this method if Auto-Pull isn't working or for one-off imports.
 
 ### Step 0: Install Bookmarklets (One-Time Setup)
 

@@ -480,4 +480,89 @@ $(document).ready(function() {
             $tournamentStatsProgress.hide();
         }
     }
+
+    // ==================== Move Stats Pull ====================
+    
+    // Move Stats selectors
+    const $moveStatsModeRadios = $('input[name="move-stats-mode"]');
+    const $manualTableIdsSection = $('#manual-table-ids-section');
+    const $autoDiscoverSection = $('#auto-discover-section');
+    const $tableIds = $('#table-ids');
+    const $matchLimit = $('#match-limit');
+    const $pullMoveStatsBtn = $('#pull-move-stats-btn');
+    const $pullMoveStatsText = $('#pull-move-stats-text');
+    const $pullMoveStatsSpinner = $('#pull-move-stats-spinner');
+    const $moveStatsProgress = $('#move-stats-progress');
+
+    // Mode toggle handler
+    $moveStatsModeRadios.on('change', function() {
+        const mode = $('input[name="move-stats-mode"]:checked').val();
+        if (mode === 'manual') {
+            $manualTableIdsSection.show();
+            $autoDiscoverSection.hide();
+        } else {
+            $manualTableIdsSection.hide();
+            $autoDiscoverSection.show();
+        }
+    });
+
+    // Pull Move Stats button
+    $pullMoveStatsBtn.on('click', handlePullMoveStats);
+
+    function handlePullMoveStats() {
+        const mode = $('input[name="move-stats-mode"]:checked').val();
+        
+        let requestData;
+        if (mode === 'manual') {
+            const tableIds = $tableIds.val().trim();
+            if (!tableIds) {
+                showError('Please enter at least one table ID');
+                return;
+            }
+            requestData = { table_ids: tableIds };
+        } else {
+            const limit = parseInt($matchLimit.val());
+            requestData = { auto_discover: true, limit: limit };
+        }
+        
+        setPullMoveStatsLoading(true);
+        $resultsArea.hide();
+        
+        $.ajax({
+            url: '/api/sync/pull/move-stats',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+            success: function(response) {
+                setPullMoveStatsLoading(false);
+                if (response.success) {
+                    const results = response.result || {};
+                    let msg = 'Move statistics pulled and imported successfully!\n';
+                    msg += `Matches: ${results.matches_created || 0} created, ${results.matches_updated || 0} updated\n`;
+                    msg += `Moves: ${results.moves_created || 0} created`;
+                    showSuccess(msg);
+                } else {
+                    showError(response.error || 'Failed to pull move stats');
+                }
+            },
+            error: function(xhr, status, error) {
+                setPullMoveStatsLoading(false);
+                const errorMsg = xhr.responseJSON?.error || 'Failed to pull move stats. Please try again.';
+                showError(errorMsg);
+            }
+        });
+    }
+
+    function setPullMoveStatsLoading(isLoading) {
+        $pullMoveStatsBtn.prop('disabled', isLoading);
+        if (isLoading) {
+            $pullMoveStatsText.text('Pulling...');
+            $pullMoveStatsSpinner.show();
+            $moveStatsProgress.show();
+        } else {
+            $pullMoveStatsText.html('📊 Pull Move Stats');
+            $pullMoveStatsSpinner.hide();
+            $moveStatsProgress.hide();
+        }
+    }
 });

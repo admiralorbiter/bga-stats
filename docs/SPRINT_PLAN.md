@@ -27,14 +27,14 @@ This document breaks down the development work into small, manageable sprints. E
 |--------|------|----------|--------|-------|
 | Sprint 8 | Games Browsing (UI + API) | 3-5 hours | ✅ Complete | Browse game catalog |
 | Sprint 9 | Auto-Pull Game List | 2-4 hours | ✅ Complete | Sync game data |
-| Sprint 10 | Tournaments Browsing | 4-6 hours | Pending | Browse tournaments |
-| Sprint 11 | Auto-Pull Tournaments | 4-8 hours | Pending | Sync tournament data |
-| Sprint 12 | Matches & Moves Browsing | 4-7 hours | Pending | Browse match timelines |
-| Sprint 13 | Auto-Pull Move Stats | 6-10 hours | Pending | Sync match data |
+| Sprint 10 | Tournaments Browsing | 4-6 hours | ✅ Complete | Browse tournaments |
+| Sprint 11 | Auto-Pull Tournaments | 4-8 hours | ✅ Complete | Sync tournament data |
+| Sprint 12 | Matches & Moves Browsing | 4-7 hours | ✅ Complete | Browse match timelines |
+| Sprint 13 | Auto-Pull Move Stats | 6-10 hours | ✅ Complete | Sync match data |
 | Sprint 14 | Integration & Testing | 6-8 hours | Pending | End-to-end all types |
 | Sprint 15 | Polish & Refinement | 4-6 hours | Pending | Final UX polish |
 
-**Phase 2 Progress**: Sprints 8-11 complete! Games and Tournaments browsing with auto-pull now available.
+**Phase 2 Progress**: ✅ **Sprints 8-13 COMPLETE!** Full data pipeline operational: Games, Tournaments, and Matches all browseable with auto-pull.
 
 **Bonus Features Added:**
 - ✅ Auto-Pull with Playwright (no copy/paste required!)
@@ -799,38 +799,71 @@ Files Created/Modified:
 
 ---
 
-## Sprint 12: Matches & Moves Browsing (UI + API)
-**Duration**: 4-7 hours  
+## Sprint 12: Matches & Moves Browsing (UI + API) ✅
+**Status**: COMPLETED  
+**Duration**: ~5 hours  
 **Goal**: Browse imported matches (tables) and move timelines
 
 **Tasks**
-- [ ] Create `GET /api/matches` and `GET /api/matches/<table_id>`
-  - [ ] Include match header + ordered move timeline
-- [ ] Create `/matches` + `/matches/<table_id>` pages
-  - [ ] Match list: table id, game name, move count, imported_at
-  - [ ] Match detail: move table + basic stats (duration, turns per player)
+- [x] Create `GET /api/matches` and `GET /api/matches/<table_id>`
+  - [x] Include match header + ordered move timeline
+  - [x] Added filtering by tournament_id and game_name
+  - [x] Added sorting and pagination support
+- [x] Create `/matches` and `/matches/<table_id>` pages
+  - [x] Match list: table id, game name, players, move count, date
+  - [x] Match detail: move timeline table with timestamps and remaining time
+  - [x] Added timeline visualization chart using Chart.js
+  - [x] Player stats summary (total moves, avg thinking time)
 - [ ] Add navigation link “Matches”
 
+**Implementation Notes**
+- Built responsive grid layout for match cards
+- Integrated Chart.js for timeline visualization
+- Color-coded players for easy tracking in charts
+- Shows thinking time in human-readable format (e.g., "2m 15s")
+- Calculates and displays per-player statistics
+- Empty state handling when no matches imported
+
 **Acceptance Criteria**
-- [ ] User can browse imported Move Stats end-to-end
+- [x] User can browse imported Move Stats end-to-end
+- [x] Timeline charts render correctly for each match
+- [x] All player moves are displayed in chronological order
 
 ---
 
-## Sprint 13: Auto-Pull Move Stats (Sync)
-**Duration**: 6-10 hours  
+## Sprint 13: Auto-Pull Move Stats (Sync) ✅
+**Status**: COMPLETED  
+**Duration**: ~8 hours  
 **Goal**: Pull move timelines from BGA match reviews given table IDs
 
 **Tasks**
-- [ ] Create `backend/services/bga_pull_move_stats.py`
-  - [ ] Accept table IDs
-  - [ ] Navigate to `gamereview?table=<id>` and extract logs (like `MoveStats.js`)
-  - [ ] Output semicolon format matching Move Stats spec
-- [ ] Add `POST /api/sync/pull/move-stats`
-- [ ] Add Sync UI section for table IDs (multi-line input)
-- [ ] Import via existing importer
+- [x] Create `backend/services/bga_pull_move_stats.py`
+  - [x] Accept table IDs (manual or auto-discovered)
+  - [x] Navigate to `gamereview?table=<id>` and extract logs (mirrors `MoveStats.js`)
+  - [x] Output semicolon format matching Move Stats spec
+  - [x] Added tournament fallback for auto-discover
+- [x] Add `POST /api/sync/pull/move-stats`
+  - [x] Supports manual table IDs input
+  - [x] Supports auto-discover from BGA pages
+  - [x] Falls back to tournament matches if no matches found on BGA
+- [x] Add Sync UI section with hybrid mode toggle
+  - [x] Manual mode: multi-line table ID input
+  - [x] Auto-discover mode: configurable limit
+- [x] Import via existing `move_stats` importer
+- [x] Handle multi-match splitting in API endpoint
+
+**Implementation Notes**
+- Hybrid approach: manual input OR auto-discover with configurable limit
+- Auto-discover tries BGA pages first, falls back to imported tournament matches
+- Robust DOM parsing with multiple selector fallbacks
+- Handles string escaping correctly in raw Python strings
+- Splits multi-match TSV by table_id before importing
 
 **Acceptance Criteria**
-- [ ] Table IDs can be pulled and show up in `/matches`
+- [x] Table IDs can be entered manually and pulled successfully
+- [x] Auto-discover finds and pulls matches from tournaments
+- [x] All moves for each match are extracted and imported
+- [x] Matches show up in `/matches` with full move data and timeline charts
 
 ---
 
